@@ -30,7 +30,9 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-
+  audio_video_progress_bar: ^0.11.0
+  just_audio: ^0.9.30
+  rxdart: ^0.27.5
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
@@ -52,6 +54,13 @@ dev_dependencies:
 
 # The following section is specific to Flutter packages.
 flutter:
+  assets:
+    - assets/
+    - assets/audio/
+  fonts:
+    - family: Karla
+      fonts:
+        - asset: assets/fonts/Karla-Bold.ttf
 
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
