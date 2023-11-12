@@ -12,6 +12,7 @@ class _PlaylistEditState extends State<PlaylistEdit> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       extendBodyBehindAppBar: true,
       appBar: AppBar(
         leading: IconButton(
@@ -23,23 +24,22 @@ class _PlaylistEditState extends State<PlaylistEdit> {
         backgroundColor: const Color(0x00000000),
         toolbarHeight: 100,
       ),
-      body: Stack(
-        children: [
-          Container(
-            decoration: const BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage('assets/creationBG.png'),
-                fit: BoxFit.cover,
-              ),
+      body: SingleChildScrollView(
+        child: Container(
+          decoration: const BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage('assets/creationBG.png'),
+              fit: BoxFit.cover,
             ),
           ),
-          Column(
+          child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              SizedBox(height: 100),
               Container(
                 width: 300,
-                height: 70,
-                padding: const EdgeInsets.only(left: 25, right: 20, top: 20),
+                height: 65,
+                padding: const EdgeInsets.only(left: 25, right: 20, top: 15),
                 margin: const EdgeInsets.symmetric(horizontal: 70),
                 child: TextField(
                   textAlign: TextAlign.center,
@@ -62,7 +62,7 @@ class _PlaylistEditState extends State<PlaylistEdit> {
                 ),
               ),
               Container(
-                padding: const EdgeInsets.only(left: 25, right: 20, top: 20),
+                padding: const EdgeInsets.only(left: 25, right: 20, top: 10),
                 width: 200,
                 child: ElevatedButton(
                   onPressed: () {},
@@ -117,8 +117,14 @@ class _PlaylistEditState extends State<PlaylistEdit> {
               ),
             ],
           ),
-        ],
+        ),
       ),
     );
   }
 }
+
+
+
+
+
+
