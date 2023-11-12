@@ -3,6 +3,7 @@ import 'package:mellowde/song_creation_coverpic_ui.dart';
 import 'package:mellowde/song_creation_namebio_ui.dart';
 import 'package:mellowde/song_playing_ui.dart';
 import 'package:mellowde/song_search_ui.dart';
+import 'package:mellowde/welcome.dart';
 
 void main() {
   runApp(const MyApp());
@@ -44,6 +45,6 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(home: SongCreationCoverPic());
+    return const MaterialApp(home: WelcomeScreen());
   }
 }
