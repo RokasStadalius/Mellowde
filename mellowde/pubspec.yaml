@@ -60,7 +60,7 @@ flutter:
   fonts:
     - family: Karla
       fonts:
-        - asset: assets/fonts/Karla-Bold.
+        - asset: assets/fonts/Karla-Bold.ttf
         - asset: assets/fonts/Karla-LightItalic.ttf
           style: italic
 
