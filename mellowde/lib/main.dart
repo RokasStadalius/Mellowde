@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mellowde/add_to_playlsit_ui.dart';
+import 'package:mellowde/forgot_pass_ui.dart';
 import 'package:mellowde/main_screen_ui.dart';
 import 'package:mellowde/playlist_create_ui.dart';
 import 'package:mellowde/playlist_edit_ui.dart';
@@ -49,6 +50,6 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(home: MainScreen());
+    return const MaterialApp(home: ForgotPassScreen());
   }
 }
