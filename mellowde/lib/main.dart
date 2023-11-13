@@ -4,6 +4,7 @@ import 'package:mellowde/forgot_pass_ui.dart';
 import 'package:mellowde/main_screen_ui.dart';
 import 'package:mellowde/playlist_create_ui.dart';
 import 'package:mellowde/playlist_edit_ui.dart';
+import 'package:mellowde/profile_details_ui.dart';
 import 'package:mellowde/song_creation_coverpic_ui.dart';
 import 'package:mellowde/song_creation_namebio_ui.dart';
 import 'package:mellowde/song_playing_ui.dart';
@@ -50,6 +51,6 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(home: ForgotPassScreen());
+    return const MaterialApp(home: ProfileDetailsScreen());
   }
 }
