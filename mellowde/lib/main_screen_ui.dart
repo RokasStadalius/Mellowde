@@ -1,8 +1,11 @@
 // ignore_for_file: unused_field
 
 import 'package:flutter/material.dart';
+import 'package:mellowde/album_search_ui.dart';
 import 'package:mellowde/models/song.dart';
+import 'package:mellowde/profile_details_ui.dart';
 import 'package:mellowde/song_component.dart';
+import 'package:mellowde/song_search_ui.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -31,16 +34,45 @@ class _MainScreenState extends State<MainScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        bottomNavigationBar: BottomNavigationBar(
+          onTap: (newIndex) {
+            if (newIndex == 0) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const SongSearch()),
+              );
+            } else if (newIndex == 1) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => const AlbumSearchScreen()),
+              );
+            }
+          },
+          items: const [
+            BottomNavigationBarItem(
+              label: "Songs",
+              icon: Icon(Icons.music_note),
+            ),
+            BottomNavigationBarItem(icon: Icon(Icons.album), label: "Albums")
+          ],
+        ),
         appBar: AppBar(
           actions: [
             const SizedBox(width: 1),
             IconButton(
               icon: Image.asset("assets/usericon.jpg"),
-              onPressed: () {},
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const ProfileDetailsScreen()),
+                );
+              },
             ),
           ],
           leading: Padding(
-            padding: EdgeInsets.all(5.0),
+            padding: const EdgeInsets.all(5.0),
             child: IconButton(
               icon: Image.asset("assets/logo.png"),
               onPressed: () {},
@@ -50,7 +82,7 @@ class _MainScreenState extends State<MainScreen> {
           backgroundColor: const Color(0x00000000),
         ),
         body: Container(
-          padding: EdgeInsets.only(left: 20),
+          padding: const EdgeInsets.only(left: 20),
           child: Column(
             children: [
               SizedBox(
@@ -85,28 +117,30 @@ class _MainScreenState extends State<MainScreen> {
                   ),
                 ),
               ),
-              SizedBox(
+              const SizedBox(
                 height: 50,
               ),
               Container(
                   alignment: Alignment.centerLeft,
-                  child: Text("History",
+                  child: const Text("History",
                       style: TextStyle(
                         fontFamily: "Karla",
                         fontSize: 40,
                       ))),
-              SizedBox(
+              const SizedBox(
                 height: 20,
               ),
               Expanded(
                 child: Container(
-                  constraints: BoxConstraints(
+                  constraints: const BoxConstraints(
                       maxHeight: 500), // Set a maximum height for the song list
                   child: ListView.builder(
                     itemCount: _songs.length,
                     shrinkWrap: true,
-                    itemBuilder: (context, index) =>
-                        SongComponent(song: _songs[index]),
+                    itemBuilder: (context, index) => SongComponent(
+                      song: _songs[index],
+                      type: "play",
+                    ),
                   ),
                 ),
               ),

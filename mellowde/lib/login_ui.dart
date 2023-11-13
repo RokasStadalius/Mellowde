@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:mellowde/forgot_pass_ui.dart';
+import 'package:mellowde/main_screen_ui.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -23,7 +25,7 @@ class _LoginPageState extends State<LoginPage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
-              child: Text(
+              child: const Text(
                 "Welcome back!",
                 style: TextStyle(
                     fontFamily: "Karla-LightItalic",
@@ -31,37 +33,37 @@ class _LoginPageState extends State<LoginPage> {
                     fontSize: 30),
               ),
             ),
-            SizedBox(height: 50),
+            const SizedBox(height: 50),
             Container(
-                margin: EdgeInsets.symmetric(horizontal: 50),
+                margin: const EdgeInsets.symmetric(horizontal: 50),
                 width: 250,
                 child: TextField(
                   decoration: InputDecoration(
-                    prefixIcon: Icon(Icons.person),
-                    contentPadding: EdgeInsets.symmetric(vertical: 10),
+                    prefixIcon: const Icon(Icons.person),
+                    contentPadding: const EdgeInsets.symmetric(vertical: 10),
                     fillColor: Colors.deepPurple.withOpacity(0.30),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide(
+                      borderSide: const BorderSide(
                           color: Colors.black,
                           width: 500), // Adjust the width here
                     ),
                   ),
                 )),
-            SizedBox(
+            const SizedBox(
               height: 20,
             ),
             Container(
-                margin: EdgeInsets.symmetric(horizontal: 50),
+                margin: const EdgeInsets.symmetric(horizontal: 50),
                 width: 250,
                 child: TextField(
                   decoration: InputDecoration(
-                    prefixIcon: Icon(Icons.lock),
-                    contentPadding: EdgeInsets.symmetric(vertical: 10),
+                    prefixIcon: const Icon(Icons.lock),
+                    contentPadding: const EdgeInsets.symmetric(vertical: 10),
                     fillColor: Colors.deepPurple.withOpacity(0.30),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide(
+                      borderSide: const BorderSide(
                           color: Colors.black,
                           width: 500), // Adjust the width here
                     ),
@@ -69,26 +71,38 @@ class _LoginPageState extends State<LoginPage> {
                 )),
             Container(
               child: TextButton(
-                child: Text("Forgot password?"),
-                onPressed: () {},
+                child: const Text("Forgot password?"),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const ForgotPassScreen()),
+                  );
+                },
               ),
             ),
             Container(
-                margin: EdgeInsets.symmetric(horizontal: 50),
+                margin: const EdgeInsets.symmetric(horizontal: 50),
                 //padding: EdgeInsets.only(bottom: 100),
                 width: 200,
                 child: ElevatedButton(
-                  onPressed: () {},
-                  child: const Text(
-                    'Log In',
-                    style: TextStyle(fontFamily: "Karla", color: Colors.white),
-                  ),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const MainScreen()),
+                    );
+                  },
                   style: ElevatedButton.styleFrom(
                     elevation: 0,
                     backgroundColor: Colors.deepPurple,
                   ),
+                  child: const Text(
+                    'Log In',
+                    style: TextStyle(fontFamily: "Karla", color: Colors.white),
+                  ),
                 )),
-            SizedBox(
+            const SizedBox(
               height: 20,
             ),
           ],

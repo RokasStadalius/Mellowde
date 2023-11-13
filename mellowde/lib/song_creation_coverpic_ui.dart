@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mellowde/image_container.dart';
+import 'package:mellowde/profile_details_ui.dart';
 
 class SongCreationCoverPic extends StatefulWidget {
   const SongCreationCoverPic({super.key});
@@ -14,10 +15,6 @@ class _SongCreationCoverPicState extends State<SongCreationCoverPic> {
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_sharp, color: Colors.black),
-          onPressed: () {},
-        ),
         centerTitle: true,
         elevation: 0.0,
         backgroundColor: const Color(0x00000000),
@@ -56,14 +53,20 @@ class _SongCreationCoverPicState extends State<SongCreationCoverPic> {
                 margin: const EdgeInsets.only(left: 103),
                 width: 150,
                 child: ElevatedButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const ProfileDetailsScreen()),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    shape: const StadiumBorder(),
+                    backgroundColor: Colors.deepPurple,
+                  ),
                   child: const Text(
                     'Save',
                     style: TextStyle(fontFamily: "Karla"),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    shape: StadiumBorder(),
-                    backgroundColor: Colors.deepPurple,
                   ),
                 ),
               ),

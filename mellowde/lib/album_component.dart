@@ -1,34 +1,34 @@
 import 'package:flutter/material.dart';
-import 'package:mellowde/models/song.dart';
-import 'package:mellowde/song_creation_coverpic_ui.dart';
-import 'package:mellowde/song_creation_namebio_ui.dart';
-import 'package:mellowde/song_playing_ui.dart';
+import 'package:mellowde/album_edit_ui.dart';
+import 'package:mellowde/album_songs_ui.dart';
+import 'package:mellowde/models/album.dart';
 
-class SongComponent extends StatefulWidget {
-  final Song song;
+class AlbumComponent extends StatefulWidget {
+  final Album album;
   final String type;
-  const SongComponent({Key? key, required this.song, required this.type})
-      : super(key: key);
+  const AlbumComponent({super.key, required this.album, required this.type});
 
   @override
-  _SongComponentState createState() => _SongComponentState();
+  State<AlbumComponent> createState() => _AlbumComponentState();
 }
 
-class _SongComponentState extends State<SongComponent> {
+class _AlbumComponentState extends State<AlbumComponent> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {},
       child: InkWell(
         onTap: () {
-          if (widget.type == "play") {
+          if (widget.type == "edit") {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => const SongPlaying()),
+              MaterialPageRoute(builder: (context) => const AlbumEditUi()),
             );
-          } else if (widget.type == "edit") {
-            Navigator.push(context,
-                MaterialPageRoute(builder: (context) => const SongCreation()));
+          } else if (widget.type == "play") {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const AlbumSongScreen()),
+            );
           }
         },
         splashColor: Colors.grey,
@@ -38,20 +38,7 @@ class _SongComponentState extends State<SongComponent> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 GestureDetector(
-                  onTap: () {
-                    if (widget.type == "play") {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const SongPlaying()),
-                      );
-                    } else if (widget.type == "edit") {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => const SongCreation()));
-                    }
-                  },
+                  onTap: () {},
                   child: Row(
                     children: [
                       SizedBox(
@@ -59,7 +46,7 @@ class _SongComponentState extends State<SongComponent> {
                         height: 60,
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(50),
-                          child: Image.asset(widget.song.imagePath),
+                          child: Image.asset(widget.album.imagePath),
                         ),
                       ),
                       const SizedBox(width: 10),
@@ -67,7 +54,7 @@ class _SongComponentState extends State<SongComponent> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            widget.song.songName,
+                            widget.album.name,
                             style: const TextStyle(
                               color: Colors.black,
                               fontFamily: "Karla",
@@ -75,7 +62,7 @@ class _SongComponentState extends State<SongComponent> {
                           ),
                           const SizedBox(height: 5),
                           Text(
-                            widget.song.artistName,
+                            widget.album.authorName,
                             style: const TextStyle(color: Colors.black38),
                           ),
                         ],
@@ -90,10 +77,7 @@ class _SongComponentState extends State<SongComponent> {
                     child: IconButton(
                       icon: const Icon(
                           Icons.delete), // Customize the icon as needed
-                      onPressed: () {
-                        // Define what happens when the delete button is pressed
-                        // For example: deleteSong(widget.song);
-                      },
+                      onPressed: () {},
                     ),
                   ),
                 ),

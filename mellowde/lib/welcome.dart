@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:mellowde/login_ui.dart';
+import 'package:mellowde/signup_ui.dart';
 
 class WelcomeScreen extends StatelessWidget {
   const WelcomeScreen({super.key});
@@ -18,8 +20,8 @@ class WelcomeScreen extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
-              padding: EdgeInsets.only(bottom: 100, left: 250),
-              child: Image(
+              padding: const EdgeInsets.only(bottom: 100, left: 250),
+              child: const Image(
                 image: AssetImage("assets/logo.png"),
                 height: 100, // Adjust the height as needed
                 width: 100,
@@ -27,37 +29,49 @@ class WelcomeScreen extends StatelessWidget {
               ),
             ),
             Container(
-                margin: EdgeInsets.symmetric(horizontal: 50),
+                margin: const EdgeInsets.symmetric(horizontal: 50),
                 width: 200,
                 child: ElevatedButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const LoginPage()),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    side: const BorderSide(width: 2.0, color: Colors.black),
+                    elevation: 0,
+                    backgroundColor: Colors.white,
+                  ),
                   child: const Text(
                     'Log In',
                     style: TextStyle(fontFamily: "Karla", color: Colors.black),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    side: BorderSide(width: 2.0, color: Colors.black),
-                    elevation: 0,
-                    backgroundColor: Colors.white,
                   ),
                 )),
             Container(
-                margin: EdgeInsets.symmetric(horizontal: 50),
+                margin: const EdgeInsets.symmetric(horizontal: 50),
                 //padding: EdgeInsets.only(bottom: 100),
                 width: 200,
                 child: ElevatedButton(
-                  onPressed: () {},
-                  child: const Text(
-                    'Log In',
-                    style: TextStyle(fontFamily: "Karla", color: Colors.black),
-                  ),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const SignUpScreen()),
+                    );
+                  },
                   style: ElevatedButton.styleFrom(
-                    side: BorderSide(width: 2.0, color: Colors.black),
+                    side: const BorderSide(width: 2.0, color: Colors.black),
                     elevation: 0,
                     backgroundColor: Colors.white,
                   ),
+                  child: const Text(
+                    'Sign Up',
+                    style: TextStyle(fontFamily: "Karla", color: Colors.black),
+                  ),
                 )),
-            SizedBox(
+            const SizedBox(
               height: 20,
             ),
           ],

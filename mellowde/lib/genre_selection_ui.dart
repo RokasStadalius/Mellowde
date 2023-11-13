@@ -26,7 +26,7 @@ class _GenreSelectionScreenState extends State<GenreSelectionScreen> {
         elevation: 0.0,
         backgroundColor: Colors.white,
         centerTitle: true,
-        title: Text(
+        title: const Text(
           "What music do you \nlisten to?",
           style:
               TextStyle(color: Colors.black, fontFamily: "Karla", fontSize: 30),
@@ -52,7 +52,7 @@ class _GenreSelectionScreenState extends State<GenreSelectionScreen> {
           Column(
             children: [
               Container(
-                padding: EdgeInsets.only(top: 50, left: 30),
+                padding: const EdgeInsets.only(top: 50, left: 30),
                 width: 180,
                 child: CheckboxListTile(
                   tileColor: Colors.deepPurple,
@@ -61,7 +61,7 @@ class _GenreSelectionScreenState extends State<GenreSelectionScreen> {
                   title: Text(
                     genreList[j].name,
                     textAlign: TextAlign.center,
-                    style: TextStyle(
+                    style: const TextStyle(
                       color: Colors.white,
                       fontFamily: "Karla",
                     ),
@@ -74,7 +74,7 @@ class _GenreSelectionScreenState extends State<GenreSelectionScreen> {
                   },
                 ),
               ),
-              SizedBox(height: 20), // Adjust the height as needed
+              const SizedBox(height: 20), // Adjust the height as needed
             ],
           ),
         );
@@ -87,40 +87,40 @@ class _GenreSelectionScreenState extends State<GenreSelectionScreen> {
         children: rowChildren,
       ));
     }
-    rows.add(SizedBox(
+    rows.add(const SizedBox(
       height: 40,
     ));
     rows.add(Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Container(
+        SizedBox(
           width: 150,
           child: ElevatedButton(
             onPressed: () {},
+            style: ElevatedButton.styleFrom(
+              shape: const StadiumBorder(),
+              backgroundColor: Colors.deepPurple,
+            ),
             child: const Text(
               'Save',
               style: TextStyle(fontFamily: "Karla"),
             ),
-            style: ElevatedButton.styleFrom(
-              shape: StadiumBorder(),
-              backgroundColor: Colors.deepPurple,
-            ),
           ),
         ),
-        SizedBox(
+        const SizedBox(
           width: 20,
         ),
-        Container(
+        SizedBox(
           width: 150,
           child: ElevatedButton(
             onPressed: () {},
+            style: ElevatedButton.styleFrom(
+              shape: const StadiumBorder(),
+              backgroundColor: const Color.fromRGBO(150, 84, 132, 100),
+            ),
             child: const Text(
               'Skip',
               style: TextStyle(fontFamily: "Karla"),
-            ),
-            style: ElevatedButton.styleFrom(
-              shape: StadiumBorder(),
-              backgroundColor: Color.fromRGBO(150, 84, 132, 100),
             ),
           ),
         ),

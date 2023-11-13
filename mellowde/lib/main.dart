@@ -51,6 +51,6 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(home: ProfileDetailsScreen());
+    return const MaterialApp(home: WelcomeScreen());
   }
 }

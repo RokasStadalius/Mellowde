@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:mellowde/main_screen_ui.dart';
+import 'package:mellowde/models/album.dart';
 import 'package:mellowde/models/song.dart';
 import 'package:mellowde/song_component.dart';
 
@@ -14,6 +16,9 @@ class _SongSearchState extends State<SongSearch> {
     Song("Basket Case", "Green Day", "assets/DookieGreenDay.png",
         "assets/audio/BasketCase.mp3"),
   ];
+  final List<Album> _albums = [
+    Album("album", "author", ""),
+  ];
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -26,16 +31,21 @@ class _SongSearchState extends State<SongSearch> {
               ),
             ],
             leading: Padding(
-              padding: EdgeInsets.all(5.0),
+              padding: const EdgeInsets.all(5.0),
               child: IconButton(
                 icon: Image.asset("assets/logo.png"),
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const MainScreen()),
+                  );
+                },
               ),
             ),
             elevation: 0,
             backgroundColor: const Color(0x00000000),
             title: Center(
-              child: Container(
+              child: SizedBox(
                 height: 38,
                 width: 300,
                 child: TextField(
@@ -56,10 +66,10 @@ class _SongSearchState extends State<SongSearch> {
             )),
         body: Container(
             child: ListView.builder(
-          padding: EdgeInsets.only(right: 20, left: 20),
+          padding: const EdgeInsets.only(right: 20, left: 20),
           itemCount: _songs.length,
           itemBuilder: (context, index) {
-            return SongComponent(song: _songs[index]);
+            return SongComponent(song: _songs[index], type: "play");
           },
         )));
   }

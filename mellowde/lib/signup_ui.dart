@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mellowde/main_screen_ui.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -22,99 +23,105 @@ class _SignUpScreenState extends State<SignUpScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            SizedBox(height: 50),
+            const SizedBox(height: 50),
             Container(
-                margin: EdgeInsets.symmetric(horizontal: 50),
+                margin: const EdgeInsets.symmetric(horizontal: 50),
                 width: 250,
                 child: TextField(
                   decoration: InputDecoration(
-                    prefixIcon: Icon(Icons.person),
-                    contentPadding: EdgeInsets.symmetric(vertical: 10),
+                    prefixIcon: const Icon(Icons.person),
+                    contentPadding: const EdgeInsets.symmetric(vertical: 10),
                     fillColor: Colors.deepPurple.withOpacity(0.30),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide(
+                      borderSide: const BorderSide(
                           color: Colors.black,
                           width: 500), // Adjust the width here
                     ),
                   ),
                 )),
-            SizedBox(
+            const SizedBox(
               height: 20,
             ),
             Container(
-                margin: EdgeInsets.symmetric(horizontal: 50),
+                margin: const EdgeInsets.symmetric(horizontal: 50),
                 width: 250,
                 child: TextField(
                   decoration: InputDecoration(
-                    prefixIcon: Icon(Icons.email),
-                    contentPadding: EdgeInsets.symmetric(vertical: 10),
+                    prefixIcon: const Icon(Icons.email),
+                    contentPadding: const EdgeInsets.symmetric(vertical: 10),
                     fillColor: Colors.deepPurple.withOpacity(0.30),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide(
+                      borderSide: const BorderSide(
                           color: Colors.black,
                           width: 500), // Adjust the width here
                     ),
                   ),
                 )),
-            SizedBox(
+            const SizedBox(
               height: 20,
             ),
             Container(
-                margin: EdgeInsets.symmetric(horizontal: 50),
+                margin: const EdgeInsets.symmetric(horizontal: 50),
                 width: 250,
                 child: TextField(
                   decoration: InputDecoration(
-                    prefixIcon: Icon(Icons.lock),
-                    contentPadding: EdgeInsets.symmetric(vertical: 10),
+                    prefixIcon: const Icon(Icons.lock),
+                    contentPadding: const EdgeInsets.symmetric(vertical: 10),
                     fillColor: Colors.deepPurple.withOpacity(0.30),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide(
+                      borderSide: const BorderSide(
                           color: Colors.black,
                           width: 500), // Adjust the width here
                     ),
                   ),
                 )),
-            SizedBox(
+            const SizedBox(
               height: 20,
             ),
             Container(
-                margin: EdgeInsets.symmetric(horizontal: 50),
+                margin: const EdgeInsets.symmetric(horizontal: 50),
                 width: 250,
                 child: TextField(
                   decoration: InputDecoration(
-                    prefixIcon: Icon(Icons.lock),
-                    contentPadding: EdgeInsets.symmetric(vertical: 10),
+                    prefixIcon: const Icon(Icons.lock),
+                    contentPadding: const EdgeInsets.symmetric(vertical: 10),
                     fillColor: Colors.deepPurple.withOpacity(0.30),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide(
+                      borderSide: const BorderSide(
                           color: Colors.black,
                           width: 500), // Adjust the width here
                     ),
                   ),
                 )),
-            SizedBox(
+            const SizedBox(
               height: 20,
             ),
             Container(
-                margin: EdgeInsets.symmetric(horizontal: 50),
+                margin: const EdgeInsets.symmetric(horizontal: 50),
                 //padding: EdgeInsets.only(bottom: 100),
                 width: 200,
                 child: ElevatedButton(
-                  onPressed: () {},
-                  child: const Text(
-                    'Sign Up',
-                    style: TextStyle(fontFamily: "Karla", color: Colors.white),
-                  ),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const MainScreen()),
+                    );
+                  },
                   style: ElevatedButton.styleFrom(
                     elevation: 0,
                     backgroundColor: Colors.deepPurple,
                   ),
+                  child: const Text(
+                    'Sign Up',
+                    style: TextStyle(fontFamily: "Karla", color: Colors.white),
+                  ),
                 )),
-            SizedBox(
+            const SizedBox(
               height: 20,
             ),
           ],

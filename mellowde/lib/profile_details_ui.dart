@@ -1,7 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:mellowde/album_create_ui.dart';
+import 'package:mellowde/album_edit_ui.dart';
 import 'package:mellowde/models/song.dart';
 import 'package:mellowde/profile_image_container.dart';
+import 'package:mellowde/select_album_edit_ui.dart';
 import 'package:mellowde/song_component.dart';
+import 'package:mellowde/song_creation_namebio_ui.dart';
+import 'package:mellowde/song_edit_ui_songs.dart';
+import 'package:mellowde/welcome.dart';
 
 class ProfileDetailsScreen extends StatelessWidget {
   const ProfileDetailsScreen({super.key});
@@ -23,6 +29,67 @@ class ProfileDetailsScreen extends StatelessWidget {
     return Scaffold(
         extendBodyBehindAppBar: true,
         appBar: AppBar(
+          actions: [
+            PopupMenuButton<String>(
+              onSelected: (selectChoice) {
+                if (selectChoice == 'albumedit') {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const SelectAlbumEditUI()),
+                  );
+                } else if (selectChoice == 'albumcreate') {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const AlbumCreateScreen()),
+                  );
+                } else if (selectChoice == 'createsong') {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const SongCreation()),
+                  );
+                } else if (selectChoice == 'editasong') {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const SongEditUiSongs()),
+                  );
+                } else if (selectChoice == 'logoff') {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const WelcomeScreen()),
+                  );
+                }
+              },
+              itemBuilder: (BuildContext context) {
+                return <PopupMenuEntry<String>>[
+                  const PopupMenuItem<String>(
+                    value: 'albumedit',
+                    child: Text('Edit an album'),
+                  ),
+                  const PopupMenuItem<String>(
+                    value: 'albumcreate',
+                    child: Text('Create an album'),
+                  ),
+                  const PopupMenuItem<String>(
+                    value: 'createsong',
+                    child: Text('Upload a song'),
+                  ),
+                  const PopupMenuItem<String>(
+                    value: 'editasong',
+                    child: Text('Edit a song'),
+                  ),
+                  const PopupMenuItem<String>(
+                    value: 'logoff',
+                    child: Text('Sign out'),
+                  ),
+                ];
+              },
+            ),
+          ],
           elevation: 0.0,
           backgroundColor: const Color(0x00000000),
         ),
@@ -77,7 +144,10 @@ class ProfileDetailsScreen extends StatelessWidget {
                             fontFamily: "Karla",
                             fontSize: 30,
                             color: Colors.black)),
-                    ...songs.map((e) => SongComponent(song: e))
+                    ...songs.map((e) => SongComponent(
+                          song: e,
+                          type: "play",
+                        ))
                   ],
                 ),
               )

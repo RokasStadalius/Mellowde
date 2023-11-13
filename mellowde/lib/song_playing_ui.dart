@@ -47,11 +47,6 @@ class _SongPlayingState extends State<SongPlaying> {
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back_ios_new_sharp,
-                color: Colors.black), // Use the back arrow icon
-            onPressed: () {},
-          ),
           centerTitle: true,
           elevation: 0.0,
           backgroundColor: const Color(0x00000000),
