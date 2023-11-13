@@ -43,7 +43,7 @@ class _AddPlaylistState extends State<AddPlaylist> {
                 style: TextStyle(
                   fontFamily: "Karla",
                   fontSize: 20,
-                  color: Colors.black,
+                  color: Colors.white,
                 ),
               ),
             ),
