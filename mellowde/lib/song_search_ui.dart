@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mellowde/add_to_playlsit_ui.dart';
 import 'package:mellowde/models/song.dart';
 import 'package:mellowde/song_component.dart';
 
@@ -59,8 +60,16 @@ class _SongSearchState extends State<SongSearch> {
           padding: EdgeInsets.only(right: 20, left: 20),
           itemCount: _songs.length,
           itemBuilder: (context, index) {
-            return SongComponent(song: _songs[index]);
-          },
+                    return GestureDetector(
+                        onLongPress: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const AddPlaylist()),
+                          );
+                        },
+                        child: SongComponent(song: _songs[index]));
+                  },
         )));
   }
 

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:mellowde/playlist_create_ui.dart';
+import 'package:mellowde/playlist_ui.dart';
 
 class AddPlaylist extends StatefulWidget{
   const AddPlaylist({Key? key}) : super(key: key);
@@ -13,10 +15,6 @@ class _AddPlaylistState extends State<AddPlaylist> {
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_sharp, color: Colors.black),
-          onPressed: () {},
-        ),
         centerTitle: true,
         elevation: 0.0,
         backgroundColor: const Color(0x00000000),
@@ -55,7 +53,11 @@ class _AddPlaylistState extends State<AddPlaylist> {
               padding: const EdgeInsets.all(16),
               width: 200,
               child: ElevatedButton(
-                onPressed: () {},
+                onPressed: () {Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const PlaylistCreation()),
+                );},
                 child: const Text(
                   'Create',
                   style: TextStyle(fontFamily: "Karla"),
@@ -75,7 +77,11 @@ class _AddPlaylistState extends State<AddPlaylist> {
               width: 280,
               height: 150,
               child: ElevatedButton(
-                onPressed: () {},
+                onPressed: () {Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const Playlist()),
+                      );},
                 child: const Text(
                   'My Playlist 1',
                   style: TextStyle(fontFamily: "Karla"),
@@ -94,7 +100,11 @@ class _AddPlaylistState extends State<AddPlaylist> {
               width: 280,
               height: 150,
               child: ElevatedButton(
-                onPressed: () {},
+                onPressed: () {Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const Playlist()),
+                      );},
                 child: const Text(
                   'My Playlist 2',
                   style: TextStyle(fontFamily: "Karla"),
@@ -113,7 +123,11 @@ class _AddPlaylistState extends State<AddPlaylist> {
               width: 280,
               height: 150,
               child: ElevatedButton(
-                onPressed: () {},
+                onPressed: () {Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const Playlist()),
+                      );},
                 child: const Text(
                   'My Playlist 3',
                   style: TextStyle(fontFamily: "Karla"),
@@ -132,7 +146,11 @@ class _AddPlaylistState extends State<AddPlaylist> {
               width: 280,
               height: 150,
               child: ElevatedButton(
-                onPressed: () {},
+                onPressed: () {Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const Playlist()),
+                      );},
                 child: const Text(
                   'My Playlist 3',
                   style: TextStyle(fontFamily: "Karla"),

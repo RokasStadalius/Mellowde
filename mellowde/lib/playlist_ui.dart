@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:mellowde/add_to_playlsit_ui.dart';
 import 'package:mellowde/models/song.dart';
+import 'package:mellowde/playlist_edit_ui.dart';
 import 'package:mellowde/song_component.dart';
 
 class Playlist extends StatefulWidget {
@@ -22,13 +24,9 @@ class _PlaylistState extends State<Playlist> {
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_sharp, color: Colors.black),
-          onPressed: () {},
-        ),
         centerTitle: true,
         elevation: 0.0,
-        backgroundColor: const Color(0x00000000),
+        backgroundColor: const Color(0x00000000).withOpacity(0),
         toolbarHeight: 100,
       ),
       body: Stack(
@@ -99,14 +97,21 @@ class _PlaylistState extends State<Playlist> {
           Align(
             alignment: Alignment.centerLeft,
             child: Container(
-              margin: EdgeInsets.only(top: 180, left: 30, right: 20),
-              child: ListView.builder(
-                itemCount: _songs.length,
-                itemBuilder: (context, index) {
-                  return SongComponent(song: _songs[index]);
-                },
-              )
-            ),
+                margin: EdgeInsets.only(top: 180, left: 30, right: 20),
+                child: ListView.builder(
+                  itemCount: _songs.length,
+                  itemBuilder: (context, index) {
+                    return GestureDetector(
+                        onLongPress: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const AddPlaylist()),
+                          );
+                        },
+                        child: SongComponent(song: _songs[index]));
+                  },
+                )),
           ),
           Positioned(
             top: 200,
@@ -123,8 +128,7 @@ class _PlaylistState extends State<Playlist> {
                   Icons.star,
                   color: Colors.black,
                 ),
-                onRatingUpdate: (rating) {
-                },
+                onRatingUpdate: (rating) {},
               ),
             ),
           ),
@@ -136,7 +140,11 @@ class _PlaylistState extends State<Playlist> {
               child: IconButton(
                 icon: Icon(Icons.more_horiz),
                 onPressed: () {
-                  // Add your button functionality here
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const PlaylistEdit()),
+                  );
                 },
               ),
             ),
@@ -182,10 +190,13 @@ class _PlaylistState extends State<Playlist> {
                             isIconPressed = !isIconPressed;
                           });
                         },
-                        icon: Icon(
-                          isIconPressed ? Icons.pause_circle_filled : Icons.play_circle_fill),
+                        icon: Icon(isIconPressed
+                            ? Icons.pause_circle_filled
+                            : Icons.play_circle_fill),
                       ),
-                      SizedBox(width: 27), // Adjust the spacing between icon and text
+                      SizedBox(
+                          width:
+                              27), // Adjust the spacing between icon and text
                       Text(
                         _songs.isNotEmpty ? _songs[0].songName : "Song Name",
                         style: TextStyle(
@@ -195,7 +206,8 @@ class _PlaylistState extends State<Playlist> {
                       ),
                     ],
                   ),
-                  SizedBox(height: 0), // Adjust the spacing between icon and text
+                  SizedBox(
+                      height: 0), // Adjust the spacing between icon and text
                   Text(
                     _songs.isNotEmpty ? _songs[0].artistName : "Artist Name",
                     style: TextStyle(
