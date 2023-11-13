@@ -1,8 +1,10 @@
 // ignore_for_file: unused_field
 
 import 'package:flutter/material.dart';
+import 'package:mellowde/add_to_playlsit_ui.dart';
 import 'package:mellowde/album_search_ui.dart';
 import 'package:mellowde/models/song.dart';
+import 'package:mellowde/playlist_ui.dart';
 import 'package:mellowde/profile_details_ui.dart';
 import 'package:mellowde/song_component.dart';
 import 'package:mellowde/song_search_ui.dart';
@@ -91,7 +93,11 @@ class _MainScreenState extends State<MainScreen> {
                   itemCount: myPlaylists.length,
                   scrollDirection: Axis.horizontal,
                   itemBuilder: (context, index) => GestureDetector(
-                    onTap: () {},
+                    onTap: () {Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const Playlist()),
+                      );},
                     child: Container(
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(10),
@@ -137,10 +143,20 @@ class _MainScreenState extends State<MainScreen> {
                   child: ListView.builder(
                     itemCount: _songs.length,
                     shrinkWrap: true,
-                    itemBuilder: (context, index) => SongComponent(
-                      song: _songs[index],
-                      type: "play",
-                    ),
+                    itemBuilder: (context, index) {
+                    return GestureDetector(
+                        onLongPress: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const AddPlaylist()),
+                          );
+                        },
+                        child: SongComponent(
+                          song: _songs[index],
+                          type: "play"
+                          ));
+                  },
                   ),
                 ),
               ),
