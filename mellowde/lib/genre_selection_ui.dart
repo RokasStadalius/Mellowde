@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mellowde/main_screen_ui.dart';
 import 'package:mellowde/models/genre.dart';
 
 class GenreSelectionScreen extends StatefulWidget {
@@ -96,7 +97,13 @@ class _GenreSelectionScreenState extends State<GenreSelectionScreen> {
         SizedBox(
           width: 150,
           child: ElevatedButton(
-            onPressed: () {},
+            onPressed: () {
+              Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const MainScreen()),
+                    );
+            },
             style: ElevatedButton.styleFrom(
               shape: const StadiumBorder(),
               backgroundColor: Colors.deepPurple,

@@ -1,8 +1,10 @@
 // ignore_for_file: unused_field
 
 import 'package:flutter/material.dart';
+import 'package:mellowde/add_to_playlsit_ui.dart';
 import 'package:mellowde/album_search_ui.dart';
 import 'package:mellowde/models/song.dart';
+import 'package:mellowde/playlist_ui.dart';
 import 'package:mellowde/profile_details_ui.dart';
 import 'package:mellowde/song_component.dart';
 import 'package:mellowde/song_search_ui.dart';
@@ -58,6 +60,7 @@ class _MainScreenState extends State<MainScreen> {
           ],
         ),
         appBar: AppBar(
+          iconTheme: const IconThemeData(color: Colors.black),
           actions: [
             const SizedBox(width: 1),
             IconButton(
@@ -71,13 +74,13 @@ class _MainScreenState extends State<MainScreen> {
               },
             ),
           ],
-          leading: Padding(
-            padding: const EdgeInsets.all(5.0),
-            child: IconButton(
-              icon: Image.asset("assets/logo.png"),
-              onPressed: () {},
-            ),
-          ),
+          //leading: Padding(
+            //padding: const EdgeInsets.all(5.0),
+            //child: IconButton(
+              //icon: Image.asset("assets/logo.png"),
+              //onPressed: () {},
+            //),
+          //),
           elevation: 0,
           backgroundColor: const Color(0x00000000),
         ),
@@ -91,7 +94,11 @@ class _MainScreenState extends State<MainScreen> {
                   itemCount: myPlaylists.length,
                   scrollDirection: Axis.horizontal,
                   itemBuilder: (context, index) => GestureDetector(
-                    onTap: () {},
+                    onTap: () {Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const Playlist()),
+                      );},
                     child: Container(
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(10),
@@ -137,10 +144,20 @@ class _MainScreenState extends State<MainScreen> {
                   child: ListView.builder(
                     itemCount: _songs.length,
                     shrinkWrap: true,
-                    itemBuilder: (context, index) => SongComponent(
-                      song: _songs[index],
-                      type: "play",
-                    ),
+                    itemBuilder: (context, index) {
+                    return GestureDetector(
+                        onLongPress: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const AddPlaylist()),
+                          );
+                        },
+                        child: SongComponent(
+                          song: _songs[index],
+                          type: "play"
+                          ));
+                  },
                   ),
                 ),
               ),
