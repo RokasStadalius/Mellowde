@@ -13,6 +13,11 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
+      appBar: AppBar(
+        elevation: 0.0,
+        backgroundColor: Color(0x00000000),
+      ),
       body: Container(
         width: MediaQuery.of(context).size.width, // Full screen width
         decoration: const BoxDecoration(

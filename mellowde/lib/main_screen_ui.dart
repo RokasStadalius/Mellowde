@@ -60,6 +60,7 @@ class _MainScreenState extends State<MainScreen> {
           ],
         ),
         appBar: AppBar(
+          iconTheme: const IconThemeData(color: Colors.black),
           actions: [
             const SizedBox(width: 1),
             IconButton(
@@ -73,13 +74,13 @@ class _MainScreenState extends State<MainScreen> {
               },
             ),
           ],
-          leading: Padding(
-            padding: const EdgeInsets.all(5.0),
-            child: IconButton(
-              icon: Image.asset("assets/logo.png"),
-              onPressed: () {},
-            ),
-          ),
+          //leading: Padding(
+            //padding: const EdgeInsets.all(5.0),
+            //child: IconButton(
+              //icon: Image.asset("assets/logo.png"),
+              //onPressed: () {},
+            //),
+          //),
           elevation: 0,
           backgroundColor: const Color(0x00000000),
         ),

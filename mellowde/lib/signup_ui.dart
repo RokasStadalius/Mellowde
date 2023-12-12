@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mellowde/genre_selection_ui.dart';
 import 'package:mellowde/main_screen_ui.dart';
 
 class SignUpScreen extends StatefulWidget {
@@ -12,6 +13,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
+      appBar: AppBar(
+        elevation: 0.0,
+        backgroundColor: Color(0x00000000),
+      ),
       body: Container(
         width: MediaQuery.of(context).size.width, // Full screen width
         decoration: const BoxDecoration(
@@ -109,7 +115,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (context) => const MainScreen()),
+                          builder: (context) => const GenreSelectionScreen()),
                     );
                   },
                   style: ElevatedButton.styleFrom(
