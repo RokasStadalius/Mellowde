@@ -3,6 +3,9 @@ import 'package:mellowde/forgot_pass_ui.dart';
 import 'package:mellowde/main_screen_ui.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:provider/provider.dart';
+import 'models/user_info.dart';
+import 'user_info_provider.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -16,7 +19,7 @@ class _LoginPageState extends State<LoginPage> {
   TextEditingController passwordController = TextEditingController();
 
   Future<void> loginUser() async {
-    const apiUrl = 'http://192.168.1.124/login.php';
+    const apiUrl = 'http://158.129.28.9/login.php';
 
     try {
       final response = await http.post(
@@ -35,7 +38,12 @@ class _LoginPageState extends State<LoginPage> {
         if (responseData['success']) {
           // Login successful
           print('Login successful');
-          // Navigate to the next screen or perform any other action
+
+          UserInfo user_info = UserInfo.fromJson(responseData['userData']);
+          UserInfoProvider userInfoProvider = Provider.of<UserInfoProvider>(context, listen: false);
+          userInfoProvider.setUserInfo(user_info);
+
+          Navigator.push(context,MaterialPageRoute(builder: (context) => const MainScreen()),);
         } else {
           // Login failed
           print('Login failed: ${responseData['message']}');
@@ -85,6 +93,7 @@ class _LoginPageState extends State<LoginPage> {
                 child: TextField(
                   controller: usernameController,
                   decoration: InputDecoration(
+                    hintText: "Username",
                     prefixIcon: const Icon(Icons.person),
                     contentPadding: const EdgeInsets.symmetric(vertical: 10),
                     fillColor: Colors.deepPurple.withOpacity(0.30),
@@ -100,22 +109,26 @@ class _LoginPageState extends State<LoginPage> {
               height: 20,
             ),
             Container(
-                margin: const EdgeInsets.symmetric(horizontal: 50),
-                width: 250,
-                child: TextField(
-                  controller: passwordController,
-                  decoration: InputDecoration(
-                    prefixIcon: const Icon(Icons.lock),
-                    contentPadding: const EdgeInsets.symmetric(vertical: 10),
-                    fillColor: Colors.deepPurple.withOpacity(0.30),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: const BorderSide(
-                          color: Colors.black,
-                          width: 500), // Adjust the width here
-                    ),
+              margin: const EdgeInsets.symmetric(horizontal: 50),
+              width: 250,
+              child: TextField(
+                controller: passwordController,
+                obscureText: true, // This property masks the entered characters
+                decoration: InputDecoration(
+                  hintText: "Password",
+                  prefixIcon: const Icon(Icons.lock),
+                  contentPadding: const EdgeInsets.symmetric(vertical: 10),
+                  fillColor: Colors.deepPurple.withOpacity(0.30),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: const BorderSide(
+                      color: Colors.black,
+                      width: 500,
+                    ), // Adjust the width here
                   ),
-                )),
+                ),
+              ),
+            ),
             Container(
               child: TextButton(
                 child: const Text("Forgot password?"),

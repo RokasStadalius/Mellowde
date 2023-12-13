@@ -3,6 +3,9 @@ import 'package:mellowde/genre_selection_ui.dart';
 import 'package:mellowde/main_screen_ui.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:provider/provider.dart';
+import 'models/user_info.dart';
+import 'user_info_provider.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -19,7 +22,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   TextEditingController repeatPasswordController = TextEditingController();
 
   Future<void> registerUser() async {
-    const apiUrl = 'http://192.168.1.124/register.php';
+    const apiUrl = 'http://158.129.28.9/register.php';
 
     try {
       final response = await http.post(
@@ -39,7 +42,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
         final responseData = jsonDecode(response.body);
         if (responseData['success']) {
           print('User registered successfully');
-          // Navigate to the next screen or perform any other action
+
+          UserInfo user_info = UserInfo.fromJson(responseData['userData']);
+          UserInfoProvider userInfoProvider = Provider.of<UserInfoProvider>(context, listen: false);
+          userInfoProvider.setUserInfo(user_info);
+
+          Navigator.push(context,MaterialPageRoute(builder: (context) => const MainScreen()),);
         } else {
           print('Registration failed: ${responseData['message']}');
         }
@@ -143,23 +151,26 @@ class _SignUpScreenState extends State<SignUpScreen> {
               height: 20,
             ),
             Container(
-                margin: const EdgeInsets.symmetric(horizontal: 50),
-                width: 250,
-                child: TextField(
-                  controller: passwordController,
-                  decoration: InputDecoration(
-                    hintText: "Password",
-                    prefixIcon: const Icon(Icons.lock),
-                    contentPadding: const EdgeInsets.symmetric(vertical: 10),
-                    fillColor: Colors.deepPurple.withOpacity(0.30),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: const BorderSide(
-                          color: Colors.black,
-                          width: 500), // Adjust the width here
-                    ),
+              margin: const EdgeInsets.symmetric(horizontal: 50),
+              width: 250,
+              child: TextField(
+                controller: passwordController,
+                obscureText: true,
+                decoration: InputDecoration(
+                  hintText: "Password",
+                  prefixIcon: const Icon(Icons.lock),
+                  contentPadding: const EdgeInsets.symmetric(vertical: 10),
+                  fillColor: Colors.deepPurple.withOpacity(0.30),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: const BorderSide(
+                      color: Colors.black,
+                      width: 500,
+                    ), // Adjust the width here
                   ),
-                )),
+                ),
+              ),
+            ),
             const SizedBox(
               height: 20,
             ),
@@ -168,6 +179,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 width: 250,
                 child: TextField(
                   controller: repeatPasswordController,
+                  obscureText: true,
                   decoration: InputDecoration(
                     hintText: "Repeat password",
                     prefixIcon: const Icon(Icons.lock),

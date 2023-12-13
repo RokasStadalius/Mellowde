@@ -8,6 +8,9 @@ import 'package:mellowde/playlist_ui.dart';
 import 'package:mellowde/profile_details_ui.dart';
 import 'package:mellowde/song_component.dart';
 import 'package:mellowde/song_search_ui.dart';
+import 'package:provider/provider.dart';
+import 'models/user_info.dart';
+import 'user_info_provider.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -17,6 +20,18 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
+  late UserInfo user_info;
+
+  @override
+  void initState() {
+    super.initState();
+
+    // Retrieve user information from the provider
+    user_info = Provider.of<UserInfoProvider>(context, listen: false).userInfo!;
+
+    print(user_info.idUser);
+  }
+  
   List<String> myPlaylists = [
     "Playlist 1",
     "Playlist 2",

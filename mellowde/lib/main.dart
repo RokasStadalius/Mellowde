@@ -10,9 +10,16 @@ import 'package:mellowde/song_creation_namebio_ui.dart';
 import 'package:mellowde/song_playing_ui.dart';
 import 'package:mellowde/song_search_ui.dart';
 import 'package:mellowde/welcome.dart';
+import 'package:provider/provider.dart';
+import 'user_info_provider.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(
+    ChangeNotifierProvider(
+      create: (context) => UserInfoProvider(),
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
