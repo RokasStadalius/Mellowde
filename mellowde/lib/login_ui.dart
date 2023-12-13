@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:mellowde/forgot_pass_ui.dart';
 import 'package:mellowde/main_screen_ui.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -10,13 +12,51 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+  TextEditingController usernameController = TextEditingController();
+  TextEditingController passwordController = TextEditingController();
+
+  Future<void> loginUser() async {
+    const apiUrl = 'http://192.168.1.124/login.php';
+
+    try {
+      final response = await http.post(
+        Uri.parse(apiUrl),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'username': usernameController.text,
+          'password': passwordController.text,
+        }),
+      );
+
+      print('Server Response: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final responseData = jsonDecode(response.body);
+        if (responseData['success']) {
+          // Login successful
+          print('Login successful');
+          // Navigate to the next screen or perform any other action
+        } else {
+          // Login failed
+          print('Login failed: ${responseData['message']}');
+        }
+      } else {
+        // Failed to connect to the server
+        print('Failed to connect to the server: ${response.statusCode}');
+      }
+    } catch (e) {
+      // Exception occurred
+      print('Error: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
         elevation: 0.0,
-        backgroundColor: Color(0x00000000),
+        backgroundColor: const Color(0x00000000),
       ),
       body: Container(
         width: MediaQuery.of(context).size.width, // Full screen width
@@ -43,6 +83,7 @@ class _LoginPageState extends State<LoginPage> {
                 margin: const EdgeInsets.symmetric(horizontal: 50),
                 width: 250,
                 child: TextField(
+                  controller: usernameController,
                   decoration: InputDecoration(
                     prefixIcon: const Icon(Icons.person),
                     contentPadding: const EdgeInsets.symmetric(vertical: 10),
@@ -62,6 +103,7 @@ class _LoginPageState extends State<LoginPage> {
                 margin: const EdgeInsets.symmetric(horizontal: 50),
                 width: 250,
                 child: TextField(
+                  controller: passwordController,
                   decoration: InputDecoration(
                     prefixIcon: const Icon(Icons.lock),
                     contentPadding: const EdgeInsets.symmetric(vertical: 10),
@@ -92,11 +134,12 @@ class _LoginPageState extends State<LoginPage> {
                 width: 200,
                 child: ElevatedButton(
                   onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => const MainScreen()),
-                    );
+                    // Navigator.push(
+                    //   context,
+                    //   MaterialPageRoute(
+                    //       builder: (context) => const MainScreen()),
+                    // );
+                    loginUser();
                   },
                   style: ElevatedButton.styleFrom(
                     elevation: 0,
