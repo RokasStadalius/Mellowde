@@ -25,7 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $name = $data['name'];
     $email = $data['email'];
     $imageURL = "empty";
-    $userType = "listener";
+    $userType = $data['userType'];
     $password = $data['password'];
 
     // Insert user data into the database

@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:mellowde/main_screen_ui.dart';
 import 'package:mellowde/models/genre.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:provider/provider.dart';
+import 'models/user_info.dart';
+import 'user_info_provider.dart';
 
 class GenreSelectionScreen extends StatefulWidget {
   const GenreSelectionScreen({super.key});
@@ -10,14 +15,55 @@ class GenreSelectionScreen extends StatefulWidget {
 }
 
 class _GenreSelectionScreenState extends State<GenreSelectionScreen> {
-  final genreList = [
-    Genre("Pop"),
-    Genre("Rock"),
-    Genre("Alt"),
-    Genre("Blues"),
-    Genre("Jazz"),
-    Genre("Punk"),
-  ];
+  late UserInfo user_info;
+  List<Genre> genreList = []; // Updated to store Genre objects
+
+  @override
+  void initState() {
+    super.initState();
+    super.initState();
+
+    // Retrieve user information from the provider
+    user_info = Provider.of<UserInfoProvider>(context, listen: false).userInfo!;
+    // Fetch genres when the screen is initialized
+    _fetchGenres();
+  }
+
+  Future<void> _fetchGenres() async {
+    final response = await http.get(Uri.parse('http://158.129.28.9/genre.php'));
+
+    if (response.statusCode == 200) {
+      final List<dynamic> jsonResponse = json.decode(response.body);
+      setState(() {
+        // Map the response to Genre objects
+        genreList = jsonResponse.map((genre) => Genre(genre)).toList();
+      });
+    } else {
+      // Handle error
+      print('Failed to load genres');
+    }
+  }
+
+  Future<void> _sendSelectedGenres() async {
+  final List<String> selectedGenres =
+      genreList.where((genre) => genre.value == true).map((e) => e.name).toList();
+
+  final response = await http.post(
+    Uri.parse('http://158.129.28.9/favouritegenre.php'),
+    body: {
+      'userId': user_info.idUser.toString(), // Pass the user ID
+      'genres': json.encode(selectedGenres), // Change 'selectedGenres' to 'genres'
+    },
+  );
+
+  if (response.statusCode == 200) {
+    // Handle successful response
+    print('Selected genres sent successfully');
+  } else {
+    // Handle error
+    print('Failed to send selected genres');
+  }
+}
 
   @override
   Widget build(BuildContext context) {
@@ -98,6 +144,7 @@ class _GenreSelectionScreenState extends State<GenreSelectionScreen> {
           width: 150,
           child: ElevatedButton(
             onPressed: () {
+              _sendSelectedGenres();
               Navigator.push(
                       context,
                       MaterialPageRoute(

@@ -20,6 +20,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
   TextEditingController repeatPasswordController = TextEditingController();
+  String? userType;
 
   Future<void> registerUser() async {
     const apiUrl = 'http://158.129.28.9/register.php';
@@ -33,6 +34,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
           'name': nameController.text,
           'email': emailController.text,
           'password': passwordController.text,
+          'userType': userType,
         }),
       );
 
@@ -47,7 +49,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
           UserInfoProvider userInfoProvider = Provider.of<UserInfoProvider>(context, listen: false);
           userInfoProvider.setUserInfo(user_info);
 
-          Navigator.push(context,MaterialPageRoute(builder: (context) => const MainScreen()),);
+          Navigator.push(context,MaterialPageRoute(builder: (context) => const GenreSelectionScreen()),);
         } else {
           print('Registration failed: ${responseData['message']}');
         }
@@ -65,6 +67,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
     emailController.text = "";
     passwordController.text = "";
     repeatPasswordController.text = "";
+    userType = 'Listener';
   }
 
   @override
@@ -130,6 +133,45 @@ class _SignUpScreenState extends State<SignUpScreen> {
               height: 20,
             ),
             Container(
+            margin: const EdgeInsets.symmetric(horizontal: 50),
+            width: 250,
+            child: DropdownButtonFormField<String>(
+              value: userType,
+              icon: const Icon(Icons.arrow_downward),
+              iconSize: 24,
+              elevation: 16,
+              style: const TextStyle(color: Colors.deepPurple),
+              onChanged: (String? newValue) {
+                setState(() {
+                  userType = newValue ?? 'Listener';
+                });
+              },
+              items: <String>['Listener', 'Creator']
+                  .map<DropdownMenuItem<String>>((String value) {
+                return DropdownMenuItem<String>(
+                  value: value,
+                  child: Text(value),
+                );
+              }).toList(),
+              decoration: InputDecoration(
+                hintText: 'User Type',
+                prefixIcon: const Icon(Icons.person),
+                contentPadding: const EdgeInsets.symmetric(vertical: 10),
+                fillColor: Colors.deepPurple.withOpacity(0.30),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: const BorderSide(
+                    color: Colors.black,
+                    width: 500,
+                  ),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(
+              height: 20,
+          ),
+            Container(
                 margin: const EdgeInsets.symmetric(horizontal: 50),
                 width: 250,
                 child: TextField(
@@ -193,6 +235,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     ),
                   ),
                 )),
+            
             const SizedBox(
               height: 20,
             ),

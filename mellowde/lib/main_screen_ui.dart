@@ -28,8 +28,6 @@ class _MainScreenState extends State<MainScreen> {
 
     // Retrieve user information from the provider
     user_info = Provider.of<UserInfoProvider>(context, listen: false).userInfo!;
-
-    print(user_info.idUser);
   }
   
   List<String> myPlaylists = [
