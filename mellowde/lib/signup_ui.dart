@@ -23,6 +23,27 @@ class _SignUpScreenState extends State<SignUpScreen> {
   String? userType;
 
   Future<void> registerUser() async {
+    if (usernameController.text.isEmpty || passwordController.text.isEmpty || nameController.text.isEmpty || emailController.text.isEmpty || repeatPasswordController.text.isEmpty) {
+      // Display a pop-up message
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text("Please fill all fields"),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: const Text("OK"),
+              ),
+            ],
+          );
+        },
+      );
+      return; // Stop further execution
+    }
+
     const apiUrl = 'http://158.129.28.9/register.php';
 
     try {
@@ -52,6 +73,17 @@ class _SignUpScreenState extends State<SignUpScreen> {
           Navigator.push(context,MaterialPageRoute(builder: (context) => const GenreSelectionScreen()),);
         } else {
           print('Registration failed: ${responseData['message']}');
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: Text(responseData['message']),
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();},
+                      child: const Text("OK"),),],);},);
+          return; // Stop further execution
         }
       } else {
         print('Failed to register user: ${response.statusCode}');

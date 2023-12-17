@@ -7,6 +7,7 @@ import 'package:mellowde/select_album_edit_ui.dart';
 import 'package:mellowde/song_component.dart';
 import 'package:mellowde/song_creation_namebio_ui.dart';
 import 'package:mellowde/song_edit_ui_songs.dart';
+import 'package:mellowde/settings_ui.dart';
 import 'package:mellowde/welcome.dart';
 
 class ProfileDetailsScreen extends StatelessWidget {
@@ -56,11 +57,11 @@ class ProfileDetailsScreen extends StatelessWidget {
                     MaterialPageRoute(
                         builder: (context) => const SongEditUiSongs()),
                   );
-                } else if (selectChoice == 'logoff') {
+                } else if (selectChoice == 'settings') {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) => const WelcomeScreen()),
+                        builder: (context) => const SettingScreen()),
                   );
                 }
               },
@@ -83,8 +84,8 @@ class ProfileDetailsScreen extends StatelessWidget {
                     child: Text('Edit a song'),
                   ),
                   const PopupMenuItem<String>(
-                    value: 'logoff',
-                    child: Text('Sign out'),
+                    value: 'settings',
+                    child: Text('Settings'),
                   ),
                 ];
               },

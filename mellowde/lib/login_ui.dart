@@ -19,6 +19,27 @@ class _LoginPageState extends State<LoginPage> {
   TextEditingController passwordController = TextEditingController();
 
   Future<void> loginUser() async {
+    if (usernameController.text.isEmpty || passwordController.text.isEmpty) {
+    // Display a pop-up message
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("Please fill all fields"),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text("OK"),
+            ),
+          ],
+        );
+      },
+    );
+    return; // Stop further execution
+  }
+
     const apiUrl = 'http://158.129.28.9/login.php';
 
     try {
@@ -47,6 +68,18 @@ class _LoginPageState extends State<LoginPage> {
         } else {
           // Login failed
           print('Login failed: ${responseData['message']}');
+          showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text("Wrong username or password"),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text("OK"),),],);},);
+          return; // Stop further execution
         }
       } else {
         // Failed to connect to the server
