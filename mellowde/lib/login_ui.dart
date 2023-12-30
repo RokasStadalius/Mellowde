@@ -40,7 +40,7 @@ class _LoginPageState extends State<LoginPage> {
     return; // Stop further execution
   }
 
-    const apiUrl = 'http://158.129.28.9/login.php';
+    const apiUrl = 'http://192.168.1.64/login.php';
 
     try {
       final response = await http.post(
@@ -180,11 +180,6 @@ class _LoginPageState extends State<LoginPage> {
                 width: 200,
                 child: ElevatedButton(
                   onPressed: () {
-                    // Navigator.push(
-                    //   context,
-                    //   MaterialPageRoute(
-                    //       builder: (context) => const MainScreen()),
-                    // );
                     loginUser();
                   },
                   style: ElevatedButton.styleFrom(

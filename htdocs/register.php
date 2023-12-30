@@ -28,33 +28,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $userType = $data['userType'];
     $password = $data['password'];
 
-    // Check if the username or email already exists
-    $checkQuery = "SELECT * FROM User WHERE username = '$username' OR email = '$email'";
-    $checkResult = $conn->query($checkQuery);
+    // Insert user data into the database
+    $insertQuery = "INSERT INTO User (username, name, email, imageURL, userType, password) VALUES ('$username', '$name', '$email', '$imageURL', '$userType', '$password')";
 
-    if ($checkResult->num_rows > 0) {
-        // User with the same username or email already exists
-        $existingUser = $checkResult->fetch_assoc();
-        $existingField = $existingUser['username'] == $username ? 'Username' : 'Email';
-        $response = ['success' => false, 'message' => "$existingField already in use"];
-    } else {
-        // Insert user data into the database
-        $insertQuery = "INSERT INTO User (username, name, email, imageURL, userType, password) VALUES ('$username', '$name', '$email', '$imageURL', '$userType', '$password')";
+    if ($conn->query($insertQuery) === TRUE) {
+        // Retrieve the user data after successful registration
+        $selectQuery = "SELECT * FROM User WHERE username = '$username'";
+        $result = $conn->query($selectQuery);
 
-        if ($conn->query($insertQuery) === TRUE) {
-            // Retrieve the user data after successful registration
-            $selectQuery = "SELECT * FROM User WHERE username = '$username'";
-            $result = $conn->query($selectQuery);
-
-            if ($result->num_rows > 0) {
-                $userData = $result->fetch_assoc();
-                $response = ['success' => true, 'message' => 'User registered successfully', 'userData' => $userData];
-            } else {
-                $response = ['success' => false, 'message' => 'Error retrieving user data'];
-            }
+        if ($result->num_rows > 0) {
+            $userData = $result->fetch_assoc();
+            $response = ['success' => true, 'message' => 'User registered successfully', 'userData' => $userData];
         } else {
-            $response = ['success' => false, 'message' => 'Error: ' . $insertQuery . '<br>' . $conn->error];
+            $response = ['success' => false, 'message' => 'Error retrieving user data'];
         }
+    } else {
+        $response = ['success' => false, 'message' => 'Error: ' . $insertQuery . '<br>' . $conn->error];
     }
 
     echo json_encode($response);
