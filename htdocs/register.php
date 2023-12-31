@@ -24,7 +24,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = $data['username'];
     $name = $data['name'];
     $email = $data['email'];
-    $imageURL = "empty";
+    $imageURL = "";
     $userType = $data['userType'];
     $password = $data['password'];
 

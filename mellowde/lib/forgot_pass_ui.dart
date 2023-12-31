@@ -72,7 +72,10 @@ class _ForgotPassScreenState extends State<ForgotPassScreen> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => CodeConfirmationScreen(generatedCode: generatedCode),
+                      builder: (context) => CodeConfirmationScreen(
+                        generatedCode: generatedCode,
+                        email: emailController.text,  // Pass the email to CodeConfirmationScreen
+                      ),
                     ),
                   );
                 } else {
@@ -89,12 +92,13 @@ class _ForgotPassScreenState extends State<ForgotPassScreen> {
     );
   }
 }
+
 class CodeConfirmationScreen extends StatelessWidget {
   final String generatedCode;
+  final String email;
   TextEditingController codeController = TextEditingController();
-
-  CodeConfirmationScreen({required this.generatedCode});
-
+  
+  CodeConfirmationScreen({required this.generatedCode, required this.email});
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -118,7 +122,7 @@ class CodeConfirmationScreen extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => ChangePasswordScreen(),
+                      builder: (context) => ChangePasswordScreen(email: email),
                     ),
                   );
                 } else {
@@ -137,16 +141,20 @@ class CodeConfirmationScreen extends StatelessWidget {
 }
 
 class ChangePasswordScreen extends StatefulWidget {
+  final String email; 
+  ChangePasswordScreen({required this.email});
   @override
-  _ChangePasswordScreenState createState() => _ChangePasswordScreenState();
+  _ChangePasswordScreenState createState() => _ChangePasswordScreenState(email: email);
 }
 
 class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
   TextEditingController newPasswordController = TextEditingController();
-  TextEditingController emailController = TextEditingController();
+  final String email;
+
+  _ChangePasswordScreenState({required this.email});
 
   Future<void> changePassword(String email, String newPassword) async {
-    final String apiUrl = 'http://192.168.1.64/reminder.php'; // Update with your server URL
+    final String apiUrl = 'http://192.168.1.64/reminder.php';
     final response = await http.post(
       Uri.parse(apiUrl),
       headers: <String, String>{
@@ -174,7 +182,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
     }
   }
 
-  @override
+ @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text('Change Password')),
@@ -184,25 +192,18 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             TextField(
-              controller: emailController,
-              decoration: InputDecoration(
-                labelText: 'Enter Email',
-                prefixIcon: Icon(Icons.email),
-              ),
-            ),
-            SizedBox(height: 20),
-            TextField(
               controller: newPasswordController,
               decoration: InputDecoration(
                 labelText: 'Enter New Password',
                 prefixIcon: Icon(Icons.lock),
+                border: OutlineInputBorder(),
               ),
-              obscureText: true,
+              obscureText: true, // Hides the entered text
             ),
             SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
-                changePassword(emailController.text, newPasswordController.text);
+                changePassword(email, newPasswordController.text);
               },
               child: Text('Change Password'),
             ),

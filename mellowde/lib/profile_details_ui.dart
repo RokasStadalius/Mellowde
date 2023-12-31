@@ -9,9 +9,80 @@ import 'package:mellowde/song_creation_namebio_ui.dart';
 import 'package:mellowde/song_edit_ui_songs.dart';
 import 'package:mellowde/settings_ui.dart';
 import 'package:mellowde/welcome.dart';
+import 'package:provider/provider.dart';
+import 'models/user_info.dart';
+import 'user_info_provider.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
-class ProfileDetailsScreen extends StatelessWidget {
+class ProfileDetailsScreen extends StatefulWidget {
   const ProfileDetailsScreen({super.key});
+
+  @override
+  State<ProfileDetailsScreen> createState() => _ProfileDetailsScreenState();
+}
+
+class _ProfileDetailsScreenState extends State<ProfileDetailsScreen> {
+  late UserInfo user_info;
+  @override
+  void initState() {
+    super.initState();
+    user_info = Provider.of<UserInfoProvider>(context, listen: false).userInfo!;
+  }
+
+  Future<void> updateProfilePicture(String newImageUrl, int userId) async {
+    final String apiUrl = 'http://192.168.1.64/profile_pic.php'; // Update with your server path
+    final response = await http.post(
+      Uri.parse(apiUrl),
+      body: {
+        'newImageUrl': newImageUrl,
+        'userId': userId.toString(),
+      },
+    );
+
+    if (response.statusCode == 200) {
+      user_info.imageURL=newImageUrl;
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to update profile picture!')),
+      );
+    }
+  }
+
+  void _showImageUpdateDialog() {
+    String newImageUrl = '';
+    int userId = user_info.idUser; 
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Update Profile Picture'),
+          content: TextField(
+            onChanged: (value) {
+              newImageUrl = value;
+            },
+            decoration: InputDecoration(hintText: 'Enter new image URL'),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: Text('Submit'),
+              onPressed: () {
+                updateProfilePicture(newImageUrl, userId);
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -112,23 +183,41 @@ class ProfileDetailsScreen extends StatelessWidget {
                     const SizedBox(
                       height: 20,
                     ),
-                    const Center(
-                        child: ProfileImageContainer(
-                            imagePath: "", width: 100, height: 100)),
+                    Center(
+                      child: GestureDetector(
+                        onTap: _showImageUpdateDialog,
+                        child: Container(
+                          width: 100,
+                          height: 100,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            image: DecorationImage(
+                              fit: BoxFit.cover,
+                              image: user_info.imageURL != null && user_info.imageURL!.isNotEmpty
+                                  ? NetworkImage(user_info.imageURL!) as ImageProvider  // Cast to ImageProvider
+                                  : AssetImage('assets/usericon.jpg') as ImageProvider,  // Cast to ImageProvider
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
                     const SizedBox(
                       height: 30,
                     ),
-                    const Center(
-                      child: Text("Name",
-                          style: TextStyle(
-                              fontFamily: "Karla",
-                              fontSize: 20,
-                              color: Colors.white)),
+                    Center(
+                    child: Text(
+                      user_info.name ?? "Default Name",  // Use the user's name from user_info
+                      style: TextStyle(
+                        fontFamily: "Karla",
+                        fontSize: 20,
+                        color: Colors.white,
+                      ),
                     ),
+                  ),
                     const SizedBox(
                       height: 150,
                     ),
-                    const Text("Bio",
+                    /*const Text("Bio",
                         style: TextStyle(
                             fontFamily: "Karla",
                             fontSize: 30,
@@ -136,7 +225,7 @@ class ProfileDetailsScreen extends StatelessWidget {
                     const Text(
                         "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
                         style: TextStyle(
-                            fontFamily: "Karla", color: Colors.black)),
+                            fontFamily: "Karla", color: Colors.black)),*/
                     const SizedBox(
                       height: 32,
                     ),
