@@ -1,18 +1,14 @@
+// ignore_for_file: unnecessary_null_comparison, unnecessary_cast
+
 import 'package:flutter/material.dart';
 import 'package:mellowde/album_create_ui.dart';
-import 'package:mellowde/album_edit_ui.dart';
-import 'package:mellowde/models/song.dart';
-import 'package:mellowde/profile_image_container.dart';
 import 'package:mellowde/select_album_edit_ui.dart';
-import 'package:mellowde/song_component.dart';
 import 'package:mellowde/song_creation_namebio_ui.dart';
 import 'package:mellowde/song_edit_ui_songs.dart';
 import 'package:mellowde/settings_ui.dart';
-import 'package:mellowde/welcome.dart';
 import 'package:provider/provider.dart';
 import 'models/user_info.dart';
 import 'user_info_provider.dart';
-import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class ProfileDetailsScreen extends StatefulWidget {
@@ -31,7 +27,8 @@ class _ProfileDetailsScreenState extends State<ProfileDetailsScreen> {
   }
 
   Future<void> updateProfilePicture(String newImageUrl, int userId) async {
-    final String apiUrl = 'http://192.168.1.64/profile_pic.php'; // Update with your server path
+    const String apiUrl =
+        'http://192.168.1.124/profile_pic.php'; // Update with your server path
     final response = await http.post(
       Uri.parse(apiUrl),
       body: {
@@ -41,39 +38,39 @@ class _ProfileDetailsScreenState extends State<ProfileDetailsScreen> {
     );
 
     if (response.statusCode == 200) {
-      user_info.imageURL=newImageUrl;
+      user_info.imageURL = newImageUrl;
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to update profile picture!')),
+        const SnackBar(content: Text('Failed to update profile picture!')),
       );
     }
   }
 
   void _showImageUpdateDialog() {
     String newImageUrl = '';
-    int userId = user_info.idUser; 
+    int userId = user_info.idUser;
 
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Update Profile Picture'),
+          title: const Text('Update Profile Picture'),
           content: TextField(
             onChanged: (value) {
               newImageUrl = value;
             },
-            decoration: InputDecoration(hintText: 'Enter new image URL'),
+            decoration: const InputDecoration(hintText: 'Enter new image URL'),
           ),
           actions: <Widget>[
             TextButton(
-              child: Text('Submit'),
+              child: const Text('Submit'),
               onPressed: () {
                 updateProfilePicture(newImageUrl, userId);
                 Navigator.of(context).pop();
               },
             ),
             TextButton(
-              child: Text('Cancel'),
+              child: const Text('Cancel'),
               onPressed: () {
                 Navigator.of(context).pop();
               },
@@ -86,18 +83,6 @@ class _ProfileDetailsScreenState extends State<ProfileDetailsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final List<Song> songs = [
-      Song("Basket Case", "Green Day", "assets/DookieGreenDay.png",
-          "assets/audio/BasketCase.mp3"),
-      Song("Basket Case", "Green Day", "assets/DookieGreenDay.png",
-          "assets/audio/BasketCase.mp3"),
-      Song("Basket Case", "Green Day", "assets/DookieGreenDay.png",
-          "assets/audio/BasketCase.mp3"),
-      Song("Basket Case", "Green Day", "assets/DookieGreenDay.png",
-          "assets/audio/BasketCase.mp3"),
-      Song("Basket Case", "Green Day", "assets/DookieGreenDay.png",
-          "assets/audio/BasketCase.mp3"),
-    ];
     return Scaffold(
         extendBodyBehindAppBar: true,
         appBar: AppBar(
@@ -137,28 +122,40 @@ class _ProfileDetailsScreenState extends State<ProfileDetailsScreen> {
                 }
               },
               itemBuilder: (BuildContext context) {
-                return <PopupMenuEntry<String>>[
-                  const PopupMenuItem<String>(
-                    value: 'albumedit',
-                    child: Text('Edit an album'),
-                  ),
-                  const PopupMenuItem<String>(
-                    value: 'albumcreate',
-                    child: Text('Create an album'),
-                  ),
-                  const PopupMenuItem<String>(
-                    value: 'createsong',
-                    child: Text('Upload a song'),
-                  ),
-                  const PopupMenuItem<String>(
-                    value: 'editasong',
-                    child: Text('Edit a song'),
-                  ),
-                  const PopupMenuItem<String>(
-                    value: 'settings',
-                    child: Text('Settings'),
-                  ),
-                ];
+                if (user_info.userType == 'Listener') {
+                  return <PopupMenuEntry<String>>[
+                    const PopupMenuItem<String>(
+                      value: 'settings',
+                      child: Text('Settings'),
+                    ),
+                  ];
+                } else if (user_info.userType == 'Creator') {
+                  return <PopupMenuEntry<String>>[
+                    const PopupMenuItem<String>(
+                      value: 'albumedit',
+                      child: Text('Edit an album'),
+                    ),
+                    const PopupMenuItem<String>(
+                      value: 'albumcreate',
+                      child: Text('Create an album'),
+                    ),
+                    const PopupMenuItem<String>(
+                      value: 'createsong',
+                      child: Text('Upload a song'),
+                    ),
+                    const PopupMenuItem<String>(
+                      value: 'editasong',
+                      child: Text('Edit a song'),
+                    ),
+                    const PopupMenuItem<String>(
+                      value: 'settings',
+                      child: Text('Settings'),
+                    ),
+                  ];
+                } else {
+                  // Handle other user types if needed
+                  return <PopupMenuEntry<String>>[];
+                }
               },
             ),
           ],
@@ -193,9 +190,12 @@ class _ProfileDetailsScreenState extends State<ProfileDetailsScreen> {
                             shape: BoxShape.circle,
                             image: DecorationImage(
                               fit: BoxFit.cover,
-                              image: user_info.imageURL != null && user_info.imageURL!.isNotEmpty
-                                  ? NetworkImage(user_info.imageURL!) as ImageProvider  // Cast to ImageProvider
-                                  : AssetImage('assets/usericon.jpg') as ImageProvider,  // Cast to ImageProvider
+                              image: user_info.imageURL != null &&
+                                      user_info.imageURL.isNotEmpty
+                                  ? NetworkImage(user_info.imageURL)
+                                      as ImageProvider // Cast to ImageProvider
+                                  : const AssetImage('assets/usericon.jpg')
+                                      as ImageProvider, // Cast to ImageProvider
                             ),
                           ),
                         ),
@@ -205,19 +205,20 @@ class _ProfileDetailsScreenState extends State<ProfileDetailsScreen> {
                       height: 30,
                     ),
                     Center(
-                    child: Text(
-                      user_info.name ?? "Default Name",  // Use the user's name from user_info
-                      style: TextStyle(
-                        fontFamily: "Karla",
-                        fontSize: 20,
-                        color: Colors.white,
+                      child: Text(
+                        user_info.name ??
+                            "Default Name", // Use the user's name from user_info
+                        style: const TextStyle(
+                          fontFamily: "Karla",
+                          fontSize: 20,
+                          color: Colors.white,
+                        ),
                       ),
                     ),
-                  ),
                     const SizedBox(
                       height: 150,
                     ),
-                    /*const Text("Bio",
+                    const Text("Bio",
                         style: TextStyle(
                             fontFamily: "Karla",
                             fontSize: 30,
@@ -225,7 +226,7 @@ class _ProfileDetailsScreenState extends State<ProfileDetailsScreen> {
                     const Text(
                         "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
                         style: TextStyle(
-                            fontFamily: "Karla", color: Colors.black)),*/
+                            fontFamily: "Karla", color: Colors.black)),
                     const SizedBox(
                       height: 32,
                     ),
@@ -234,10 +235,6 @@ class _ProfileDetailsScreenState extends State<ProfileDetailsScreen> {
                             fontFamily: "Karla",
                             fontSize: 30,
                             color: Colors.black)),
-                    ...songs.map((e) => SongComponent(
-                          song: e,
-                          type: "play",
-                        ))
                   ],
                 ),
               )

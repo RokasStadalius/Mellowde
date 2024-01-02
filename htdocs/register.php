@@ -38,6 +38,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if ($result->num_rows > 0) {
             $userData = $result->fetch_assoc();
+
+            if ($userType === 'Creator') {
+                // If user type is 'Creator', insert into the 'Artists' table
+                $userId = $userData['idUser'];
+                $bio = "";
+                $rating = 0;
+                $insertArtistQuery = "INSERT INTO artist (bio, rating, idUser) VALUES ('$bio', '$rating', '$userId')";
+                $conn->query($insertArtistQuery);
+            }
+
             $response = ['success' => true, 'message' => 'User registered successfully', 'userData' => $userData];
         } else {
             $response = ['success' => false, 'message' => 'Error retrieving user data'];

@@ -20,10 +20,10 @@ class _AlbumComponentState extends State<AlbumComponent> {
       child: InkWell(
         onTap: () {
           if (widget.type == "edit") {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const AlbumEditUi()),
-            );
+            // Navigator.push(
+            //   context,
+            //   MaterialPageRoute(builder: (context) => const AlbumEditUi()),
+            // );
           } else if (widget.type == "play") {
             Navigator.push(
               context,

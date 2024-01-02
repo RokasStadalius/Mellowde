@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:mellowde/forgot_pass_ui.dart';
-import 'package:mellowde/main_screen_ui.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:provider/provider.dart';
 import 'models/user_info.dart';
+import 'models/artist_info.dart';
 import 'user_info_provider.dart';
+import 'artist_info_provider.dart';
+import 'forgot_pass_ui.dart';
+import 'main_screen_ui.dart';
 
 class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
+  const LoginPage({Key? key}) : super(key: key);
 
   @override
   State<LoginPage> createState() => _LoginPageState();
@@ -20,27 +22,27 @@ class _LoginPageState extends State<LoginPage> {
 
   Future<void> loginUser() async {
     if (usernameController.text.isEmpty || passwordController.text.isEmpty) {
-    // Display a pop-up message
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text("Please fill all fields"),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text("OK"),
-            ),
-          ],
-        );
-      },
-    );
-    return; // Stop further execution
-  }
+      // Display a pop-up message
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text("Please fill all fields"),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: const Text("OK"),
+              ),
+            ],
+          );
+        },
+      );
+      return; // Stop further execution
+    }
 
-    const apiUrl = 'http://192.168.1.64/login.php';
+    const apiUrl = 'http://192.168.1.124/login.php';
 
     try {
       final response = await http.post(
@@ -60,25 +62,34 @@ class _LoginPageState extends State<LoginPage> {
           // Login successful
           print('Login successful');
 
-          UserInfo user_info = UserInfo.fromJson(responseData['userData']);
-          UserInfoProvider userInfoProvider = Provider.of<UserInfoProvider>(context, listen: false);
-          userInfoProvider.setUserInfo(user_info);
+          UserInfo userInfo = UserInfo.fromJson(responseData['userData']);
+          UserInfoProvider userInfoProvider =
+              Provider.of<UserInfoProvider>(context, listen: false);
+          userInfoProvider.setUserInfo(userInfo);
 
-          Navigator.push(context,MaterialPageRoute(builder: (context) => const MainScreen()),);
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const MainScreen()),
+          );
         } else {
           // Login failed
           print('Login failed: ${responseData['message']}');
           showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              title: const Text("Wrong username or password"),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                  child: const Text("OK"),),],);},);
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: const Text("Wrong username or password"),
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: const Text("OK"),
+                  ),
+                ],
+              );
+            },
+          );
           return; // Stop further execution
         }
       } else {
@@ -100,11 +111,11 @@ class _LoginPageState extends State<LoginPage> {
         backgroundColor: const Color(0x00000000),
       ),
       body: Container(
-        width: MediaQuery.of(context).size.width, // Full screen width
+        width: MediaQuery.of(context).size.width,
         decoration: const BoxDecoration(
           image: DecorationImage(
             image: AssetImage('assets/welcomeBG.png'),
-            fit: BoxFit.cover, // Ensure the image covers the entire space
+            fit: BoxFit.cover,
           ),
         ),
         child: Column(
@@ -133,8 +144,9 @@ class _LoginPageState extends State<LoginPage> {
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
                       borderSide: const BorderSide(
-                          color: Colors.black,
-                          width: 500), // Adjust the width here
+                        color: Colors.black,
+                        width: 500,
+                      ),
                     ),
                   ),
                 )),
@@ -146,7 +158,7 @@ class _LoginPageState extends State<LoginPage> {
               width: 250,
               child: TextField(
                 controller: passwordController,
-                obscureText: true, // This property masks the entered characters
+                obscureText: true,
                 decoration: InputDecoration(
                   hintText: "Password",
                   prefixIcon: const Icon(Icons.lock),
@@ -157,7 +169,7 @@ class _LoginPageState extends State<LoginPage> {
                     borderSide: const BorderSide(
                       color: Colors.black,
                       width: 500,
-                    ), // Adjust the width here
+                    ),
                   ),
                 ),
               ),
@@ -176,7 +188,6 @@ class _LoginPageState extends State<LoginPage> {
             ),
             Container(
                 margin: const EdgeInsets.symmetric(horizontal: 50),
-                //padding: EdgeInsets.only(bottom: 100),
                 width: 200,
                 child: ElevatedButton(
                   onPressed: () {

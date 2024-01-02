@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:mellowde/models/song.dart';
-import 'package:mellowde/song_creation_coverpic_ui.dart';
 import 'package:mellowde/song_creation_namebio_ui.dart';
 import 'package:mellowde/song_playing_ui.dart';
 

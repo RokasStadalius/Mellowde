@@ -1,20 +1,76 @@
 import 'package:flutter/material.dart';
-import 'package:mellowde/models/song.dart';
+import 'package:mellowde/models/user_info.dart';
 import 'package:mellowde/profile_details_ui.dart';
-import 'package:mellowde/song_component.dart';
+import 'package:mellowde/song_edit_ui.dart';
+import 'package:mellowde/user_info_provider.dart';
+import 'package:provider/provider.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 class SongEditUiSongs extends StatefulWidget {
-  const SongEditUiSongs({super.key});
+  const SongEditUiSongs({Key? key}) : super(key: key);
 
   @override
   State<SongEditUiSongs> createState() => _SongEditUiSongsState();
 }
 
 class _SongEditUiSongsState extends State<SongEditUiSongs> {
-  final List<Song> _songs = [
-    Song("Basket Case", "Green Day", "assets/DookieGreenDay.png",
-        "assets/audio/BasketCase.mp3"),
-  ];
+  late UserInfo user_info;
+  List<Map<String, dynamic>> songs = [];
+
+  @override
+  void initState() {
+    super.initState();
+    user_info = Provider.of<UserInfoProvider>(context, listen: false).userInfo!;
+    fetchSongs();
+  }
+
+  Future<void> fetchSongs() async {
+    final response = await http.post(
+      Uri.parse('http://10.0.2.2/fetchsongsedit.php'),
+      body: {'idUser': user_info.idUser.toString()},
+    );
+
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> data = jsonDecode(response.body);
+
+      if (data['success']) {
+        setState(() {
+          songs = List<Map<String, dynamic>>.from(data['songs']);
+        });
+      } else {
+        // Handle error
+        print(data['message']);
+      }
+    } else {
+      // Handle HTTP error
+      print('Failed to load songs');
+    }
+  }
+
+  Future<void> removeSong(int idSong) async {
+    final response = await http.post(
+      Uri.parse(
+          'http://10.0.2.2/removesong.php'), // Replace with your PHP script URL
+      body: {'idSong': idSong.toString()},
+    );
+
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> data = jsonDecode(response.body);
+
+      if (data['success']) {
+        // Song removed successfully, update the UI by calling fetchSongs()
+        fetchSongs();
+      } else {
+        // Handle error
+        print(data['message']);
+      }
+    } else {
+      // Handle HTTP error
+      print('Failed to remove song');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -37,15 +93,43 @@ class _SongEditUiSongsState extends State<SongEditUiSongs> {
               const SizedBox(
                 height: 100,
               ),
-              ..._songs.map((e) => SongComponent(
-                    song: e,
-                    type: "edit",
-                  )),
               const SizedBox(
-                height: 100,
+                height: 20,
               ),
               SizedBox(
-                width: 150,
+                height: 550,
+                child: ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: songs.length,
+                  itemBuilder: (context, index) {
+                    final song = songs[index];
+                    return ListTile(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => SongEditUI(
+                                    IdSong: int.parse(song['idSong']),
+                                  )),
+                        );
+                      },
+                      leading: ClipOval(child: Image.network(song['coverURL'])),
+                      title: Text(song['title']),
+                      trailing: IconButton(
+                        icon: const Icon(
+                          Icons.delete,
+                          color: Colors.black,
+                        ),
+                        onPressed: () {
+                          removeSong(int.parse(song['idSong']));
+                        },
+                      ),
+                    );
+                  },
+                ),
+              ),
+              SizedBox(
+                width: 200,
                 child: ElevatedButton(
                   onPressed: () {
                     Navigator.push(
