@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:mellowde/add_to_playlsit_ui.dart';
+import 'package:mellowde/artist_info_provider.dart';
 import 'package:mellowde/forgot_pass_ui.dart';
 import 'package:mellowde/main_screen_ui.dart';
 import 'package:mellowde/playlist_create_ui.dart';
 import 'package:mellowde/playlist_edit_ui.dart';
 import 'package:mellowde/profile_details_ui.dart';
-import 'package:mellowde/song_creation_coverpic_ui.dart';
 import 'package:mellowde/song_creation_namebio_ui.dart';
 import 'package:mellowde/song_playing_ui.dart';
 import 'package:mellowde/song_search_ui.dart';
@@ -15,8 +15,12 @@ import 'user_info_provider.dart';
 
 void main() {
   runApp(
-    ChangeNotifierProvider(
-      create: (context) => UserInfoProvider(),
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => UserInfoProvider()),
+        ChangeNotifierProvider(
+            create: (_) => ArtistInfoProvider()), // Add this line
+      ],
       child: const MyApp(),
     ),
   );

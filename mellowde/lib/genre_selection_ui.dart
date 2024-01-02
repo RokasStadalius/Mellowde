@@ -30,7 +30,8 @@ class _GenreSelectionScreenState extends State<GenreSelectionScreen> {
   }
 
   Future<void> _fetchGenres() async {
-    final response = await http.get(Uri.parse('http://192.168.1.64/genre.php'));
+    final response =
+        await http.get(Uri.parse('http://192.168.1.124/genre.php'));
 
     if (response.statusCode == 200) {
       final List<dynamic> jsonResponse = json.decode(response.body);
@@ -45,25 +46,28 @@ class _GenreSelectionScreenState extends State<GenreSelectionScreen> {
   }
 
   Future<void> _sendSelectedGenres() async {
-  final List<String> selectedGenres =
-      genreList.where((genre) => genre.value == true).map((e) => e.name).toList();
+    final List<String> selectedGenres = genreList
+        .where((genre) => genre.value == true)
+        .map((e) => e.name)
+        .toList();
 
-  final response = await http.post(
-    Uri.parse('http://192.168.1.64/favouritegenre.php'),
-    body: {
-      'userId': user_info.idUser.toString(), // Pass the user ID
-      'genres': json.encode(selectedGenres), // Change 'selectedGenres' to 'genres'
-    },
-  );
+    final response = await http.post(
+      Uri.parse('http://192.168.1.124/favouritegenre.php'),
+      body: {
+        'userId': user_info.idUser.toString(), // Pass the user ID
+        'genres':
+            json.encode(selectedGenres), // Change 'selectedGenres' to 'genres'
+      },
+    );
 
-  if (response.statusCode == 200) {
-    // Handle successful response
-    print('Selected genres sent successfully');
-  } else {
-    // Handle error
-    print('Failed to send selected genres');
+    if (response.statusCode == 200) {
+      // Handle successful response
+      print('Selected genres sent successfully');
+    } else {
+      // Handle error
+      print('Failed to send selected genres');
+    }
   }
-}
 
   @override
   Widget build(BuildContext context) {
@@ -146,10 +150,9 @@ class _GenreSelectionScreenState extends State<GenreSelectionScreen> {
             onPressed: () {
               _sendSelectedGenres();
               Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => const MainScreen()),
-                    );
+                context,
+                MaterialPageRoute(builder: (context) => const MainScreen()),
+              );
             },
             style: ElevatedButton.styleFrom(
               shape: const StadiumBorder(),

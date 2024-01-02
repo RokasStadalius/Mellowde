@@ -20,7 +20,7 @@ class SignUpScreen extends StatefulWidget {
 }
 
 class _SignUpScreenState extends State<SignUpScreen> {
-  UserInfo? user_info = null;
+  UserInfo? user_info;
   TextEditingController usernameController = TextEditingController();
   TextEditingController nameController = TextEditingController();
   TextEditingController emailController = TextEditingController();
@@ -33,7 +33,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
   String username = '';
 
   Future<void> registerUser() async {
-    if (usernameController.text.isEmpty || passwordController.text.isEmpty || nameController.text.isEmpty || emailController.text.isEmpty || repeatPasswordController.text.isEmpty) {
+    if (usernameController.text.isEmpty ||
+        passwordController.text.isEmpty ||
+        nameController.text.isEmpty ||
+        emailController.text.isEmpty ||
+        repeatPasswordController.text.isEmpty) {
       showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -53,27 +57,27 @@ class _SignUpScreenState extends State<SignUpScreen> {
       return;
     }
 
-  if (passwordController.text != repeatPasswordController.text) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text("Passwords do not match"),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text("OK"),
-            ),
-          ],
-        );
-      },
-    );
-    return;
-  }
+    if (passwordController.text != repeatPasswordController.text) {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text("Passwords do not match"),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: const Text("OK"),
+              ),
+            ],
+          );
+        },
+      );
+      return;
+    }
 
-    const apiUrl = 'http://192.168.1.64/check_existing.php';
+    const apiUrl = 'http://192.168.1.124/check_existing.php';
     email = emailController.text;
     password = passwordController.text;
     name = nameController.text;
@@ -94,56 +98,93 @@ class _SignUpScreenState extends State<SignUpScreen> {
       if (response.statusCode == 200) {
         final responseData = jsonDecode(response.body);
         if (responseData['success']) {
-          processRegistration(responseData['userData'],email);
+          processRegistration(responseData['userData'], email);
+        } else {
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: Text(responseData['message']),
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: const Text("OK"),
+                  ),
+                ],
+              );
+            },
+          );
+        }
       } else {
-        showDialog(context: context,builder: (BuildContext context) {return AlertDialog(title: Text(responseData['message']),actions: [TextButton(onPressed: () {Navigator.of(context).pop();},child: const Text("OK"),),],);},);
+        print('Failed to check existing user: ${response.statusCode}');
       }
-    } else {
-      print('Failed to check existing user: ${response.statusCode}');
+    } catch (e) {
+      print('Error checking existing user: $e');
     }
-  } catch (e) {
-    print('Error checking existing user: $e');
   }
-}
 
-  Future<void> processRegistration(dynamic userData,String recipientEmail) async {
+  Future<void> processRegistration(
+      dynamic userData, String recipientEmail) async {
     String? verificationCode = await sendMail(recipientEmail, context);
 
     if (verificationCode != null) {
-      const registerApiUrl = 'http://192.168.1.64/register.php';
-          try {
-            final registerResponse = await http.post(
-              Uri.parse(registerApiUrl),
-              headers: {'Content-Type': 'application/json'},
-              body: jsonEncode({
-                'username': username,
-                'name': name,
-                'email': email,
-                'password': password,
-                'userType': userType,
-              }),
+      const registerApiUrl = 'http://192.168.1.124/register.php';
+      try {
+        final registerResponse = await http.post(
+          Uri.parse(registerApiUrl),
+          headers: {'Content-Type': 'application/json'},
+          body: jsonEncode({
+            'username': username,
+            'name': name,
+            'email': email,
+            'password': password,
+            'userType': userType,
+          }),
+        );
+
+        print('Register Response: ${registerResponse.body}');
+
+        if (registerResponse.statusCode == 200) {
+          final registerData = jsonDecode(registerResponse.body);
+          if (registerData['success']) {
+            user_info = UserInfo.fromJson(registerData['userData']);
+            UserInfoProvider userInfoProvider =
+                Provider.of<UserInfoProvider>(context, listen: false);
+            userInfoProvider.setUserInfo(user_info);
+            clearControllers();
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => const GenreSelectionScreen()),
             );
-
-            print('Register Response: ${registerResponse.body}');
-
-            if (registerResponse.statusCode == 200) {
-              final registerData = jsonDecode(registerResponse.body);
-              if (registerData['success']) {
-                user_info = UserInfo.fromJson(registerData['userData']);
-                UserInfoProvider userInfoProvider = Provider.of<UserInfoProvider>(context, listen: false);
-                userInfoProvider.setUserInfo(user_info);
-                clearControllers();
-                Navigator.push(context,MaterialPageRoute(builder: (context) => const GenreSelectionScreen()),);
-              } else {
-                print('Registration failed: ${registerData['message']}');
-                showDialog(context: context,builder: (BuildContext context) {return AlertDialog(title: Text(registerData['message']),actions: [TextButton(onPressed: () {Navigator.of(context).pop();},child: const Text("OK"),),],);},);}
-            } else {
-              print('Failed to register user: ${registerResponse.statusCode}');
-            }
-          } catch (e) {
-            print('Error registering user: $e');
+          } else {
+            print('Registration failed: ${registerData['message']}');
+            showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return AlertDialog(
+                  title: Text(registerData['message']),
+                  actions: [
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                      child: const Text("OK"),
+                    ),
+                  ],
+                );
+              },
+            );
           }
-          }
+        } else {
+          print('Failed to register user: ${registerResponse.statusCode}');
+        }
+      } catch (e) {
+        print('Error registering user: $e');
+      }
+    }
   }
 
   Future<String?> sendMail(String recipientEmail, BuildContext context) async {
@@ -153,59 +194,58 @@ class _SignUpScreenState extends State<SignUpScreen> {
     int randomCode = Random().nextInt(900000) + 100000;
     String verificationCode = randomCode.toString();
 
-
-
     final message = Message()
       ..from = Address(username, 'Mellowde')
       ..recipients.add(recipientEmail)
       ..subject = 'Registration'
       ..text = 'Your verification code is: $verificationCode '
-      ..html = "<h1>Verification Code</h1>\n<p>Your verification code is: <strong>$verificationCode </strong></p>";
-    
+      ..html =
+          "<h1>Verification Code</h1>\n<p>Your verification code is: <strong>$verificationCode </strong></p>";
+
     Completer<String?> completer = Completer<String?>();
 
-  // Send the email
-  try {
-    await send(message, smtpServer);
-  } catch (e) {
-    if (kDebugMode) {
-      print(e.toString());
+    // Send the email
+    try {
+      await send(message, smtpServer);
+    } catch (e) {
+      if (kDebugMode) {
+        print(e.toString());
+      }
+      completer.completeError("Failed to send verification email.");
+      return completer.future;
     }
-    completer.completeError("Failed to send verification email.");
-    return completer.future;
-  }
 
-  // Show dialog for user input
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        title: Text("Enter Verification Code"),
-        content: TextField(
-          onChanged: (value) {
-            if (value == verificationCode) {
-              Navigator.pop(context); // Close dialog
-              completer.complete(verificationCode); // Complete the future
-            }
-          },
-          decoration: InputDecoration(hintText: "Enter Code"),
-        ),
-        actions: <Widget>[
-          TextButton(
-            child: Text('Submit'),
-            onPressed: () {
-              if (completer.isCompleted) {
+    // Show dialog for user input
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("Enter Verification Code"),
+          content: TextField(
+            onChanged: (value) {
+              if (value == verificationCode) {
                 Navigator.pop(context); // Close dialog
+                completer.complete(verificationCode); // Complete the future
               }
             },
+            decoration: const InputDecoration(hintText: "Enter Code"),
           ),
-        ],
-      );
-    },
-  );
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Submit'),
+              onPressed: () {
+                if (completer.isCompleted) {
+                  Navigator.pop(context); // Close dialog
+                }
+              },
+            ),
+          ],
+        );
+      },
+    );
 
-  return completer.future;  // Return the future from completer
-}
+    return completer.future; // Return the future from completer
+  }
 
   void clearControllers() {
     usernameController.text = "";
@@ -279,44 +319,44 @@ class _SignUpScreenState extends State<SignUpScreen> {
               height: 20,
             ),
             Container(
-            margin: const EdgeInsets.symmetric(horizontal: 50),
-            width: 250,
-            child: DropdownButtonFormField<String>(
-              value: userType,
-              icon: const Icon(Icons.arrow_downward),
-              iconSize: 24,
-              elevation: 16,
-              style: const TextStyle(color: Colors.deepPurple),
-              onChanged: (String? newValue) {
-                setState(() {
-                  userType = newValue ?? 'Listener';
-                });
-              },
-              items: <String>['Listener', 'Creator']
-                  .map<DropdownMenuItem<String>>((String value) {
-                return DropdownMenuItem<String>(
-                  value: value,
-                  child: Text(value),
-                );
-              }).toList(),
-              decoration: InputDecoration(
-                hintText: 'User Type',
-                prefixIcon: const Icon(Icons.person),
-                contentPadding: const EdgeInsets.symmetric(vertical: 10),
-                fillColor: Colors.deepPurple.withOpacity(0.30),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                  borderSide: const BorderSide(
-                    color: Colors.black,
-                    width: 500,
+              margin: const EdgeInsets.symmetric(horizontal: 50),
+              width: 250,
+              child: DropdownButtonFormField<String>(
+                value: userType,
+                icon: const Icon(Icons.arrow_downward),
+                iconSize: 24,
+                elevation: 16,
+                style: const TextStyle(color: Colors.deepPurple),
+                onChanged: (String? newValue) {
+                  setState(() {
+                    userType = newValue ?? 'Listener';
+                  });
+                },
+                items: <String>['Listener', 'Creator']
+                    .map<DropdownMenuItem<String>>((String value) {
+                  return DropdownMenuItem<String>(
+                    value: value,
+                    child: Text(value),
+                  );
+                }).toList(),
+                decoration: InputDecoration(
+                  hintText: 'User Type',
+                  prefixIcon: const Icon(Icons.person),
+                  contentPadding: const EdgeInsets.symmetric(vertical: 10),
+                  fillColor: Colors.deepPurple.withOpacity(0.30),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: const BorderSide(
+                      color: Colors.black,
+                      width: 500,
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
-          const SizedBox(
+            const SizedBox(
               height: 20,
-          ),
+            ),
             Container(
                 margin: const EdgeInsets.symmetric(horizontal: 50),
                 width: 250,
@@ -381,7 +421,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     ),
                   ),
                 )),
-            
             const SizedBox(
               height: 20,
             ),
