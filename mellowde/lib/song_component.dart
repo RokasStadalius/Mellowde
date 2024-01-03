@@ -23,7 +23,8 @@ class _SongComponentState extends State<SongComponent> {
           if (widget.type == "play") {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => const SongPlaying()),
+              MaterialPageRoute(
+                  builder: (context) => SongPlaying(song: widget.song)),
             );
           } else if (widget.type == "edit") {
             Navigator.push(context,
@@ -42,7 +43,8 @@ class _SongComponentState extends State<SongComponent> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => const SongPlaying()),
+                            builder: (context) =>
+                                SongPlaying(song: widget.song)),
                       );
                     } else if (widget.type == "edit") {
                       Navigator.push(
@@ -58,7 +60,7 @@ class _SongComponentState extends State<SongComponent> {
                         height: 60,
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(50),
-                          child: Image.asset(widget.song.imagePath),
+                          child: Image.network(widget.song.imagePath),
                         ),
                       ),
                       const SizedBox(width: 10),

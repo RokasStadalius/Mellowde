@@ -1,8 +1,25 @@
 class Song {
-  final String songName;
+  final int idSong;
   final String artistName;
+  final String songName;
   final String imagePath;
   final String songPath;
 
-  Song(this.songName, this.artistName, this.imagePath, this.songPath);
+  Song({
+    required this.idSong,
+    required this.artistName,
+    required this.songName,
+    required this.imagePath,
+    required this.songPath,
+  });
+
+  factory Song.fromJson(Map<String, dynamic> json) {
+    return Song(
+      idSong: int.parse(json['idSong']),
+      artistName: json['artistName'],
+      songName: json['title'] ?? '',
+      imagePath: json['coverURL'] ?? '',
+      songPath: json['songURL'] ?? '',
+    );
+  }
 }

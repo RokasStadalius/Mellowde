@@ -21,7 +21,6 @@ class _SelectAlbumEditUIState extends State<SelectAlbumEditUI> {
   void initState() {
     super.initState();
     user_info = Provider.of<UserInfoProvider>(context, listen: false).userInfo!;
-    print(user_info.idUser);
     fetchAlbums(); // Fetch albums when the widget is created
   }
 
@@ -31,11 +30,40 @@ class _SelectAlbumEditUIState extends State<SelectAlbumEditUI> {
     final response = await http.get(uri);
 
     if (response.statusCode == 200) {
-      setState(() {
-        albums = List<Map<String, dynamic>>.from(json.decode(response.body));
-      });
+      final dynamic jsonData = json.decode(response.body);
+
+      if (jsonData is List) {
+        setState(() {
+          albums = List<Map<String, dynamic>>.from(jsonData);
+        });
+      } else {
+        // Handle the case when jsonData is not a List
+        print('Invalid data format');
+      }
     } else {
       throw Exception('Failed to load albums');
+    }
+  }
+
+  Future<void> removeAlbum(int albumId) async {
+    final response = await http.post(
+      Uri.parse('http://10.0.2.2/removealbum.php'),
+      body: {'albumId': albumId.toString()},
+    );
+
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> data = json.decode(response.body);
+      fetchAlbums();
+
+      if (data['status'] == 'success') {
+        // Album removed successfully, update the UI by calling fetchAlbums()
+      } else {
+        // Handle error
+        print(data['message']);
+      }
+    } else {
+      // Handle HTTP error
+      print('Failed to remove album');
     }
   }
 
@@ -71,13 +99,22 @@ class _SelectAlbumEditUIState extends State<SelectAlbumEditUI> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => AlbumEditUi(
-                                  albumId: int.parse(albums[index]['idAlbum']),
-                                )),
+                          builder: (context) => AlbumEditUi(
+                            albumId: int.parse(albums[index]['idAlbum']),
+                          ),
+                        ),
                       );
                     },
+                    trailing: IconButton(
+                      icon: const Icon(Icons.delete, color: Colors.black),
+                      onPressed: () {
+                        // Call the backend script to remove the album
+                        removeAlbum(int.parse(albums[index]['idAlbum']));
+                      },
+                    ),
                     leading: ClipOval(
-                        child: Image.network(albums[index]['coverURL'])),
+                      child: Image.network(albums[index]['coverURL']),
+                    ),
                     title: Text(albums[index]['title']),
                     subtitle: Text(user_info.name),
                     // Add other information as needed

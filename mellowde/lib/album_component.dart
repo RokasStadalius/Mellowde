@@ -27,7 +27,8 @@ class _AlbumComponentState extends State<AlbumComponent> {
           } else if (widget.type == "play") {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => const AlbumSongScreen()),
+              MaterialPageRoute(
+                  builder: (context) => AlbumSongScreen(album: widget.album)),
             );
           }
         },
@@ -46,7 +47,7 @@ class _AlbumComponentState extends State<AlbumComponent> {
                         height: 60,
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(50),
-                          child: Image.asset(widget.album.imagePath),
+                          child: Image.network(widget.album.coverURL),
                         ),
                       ),
                       const SizedBox(width: 10),
@@ -54,7 +55,7 @@ class _AlbumComponentState extends State<AlbumComponent> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            widget.album.name,
+                            widget.album.title,
                             style: const TextStyle(
                               color: Colors.black,
                               fontFamily: "Karla",
@@ -62,7 +63,7 @@ class _AlbumComponentState extends State<AlbumComponent> {
                           ),
                           const SizedBox(height: 5),
                           Text(
-                            widget.album.authorName,
+                            widget.album.artistName,
                             style: const TextStyle(color: Colors.black38),
                           ),
                         ],

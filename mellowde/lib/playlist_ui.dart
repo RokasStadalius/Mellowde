@@ -13,10 +13,6 @@ class Playlist extends StatefulWidget {
 }
 
 class _PlaylistState extends State<Playlist> {
-  final List<Song> _songs = [
-    Song("Basket Case", "Green Day", "assets/DookieGreenDay.png",
-        "assets/audio/BasketCase.mp3"),
-  ];
   bool isIconPressed = true;
 
   @override
@@ -43,14 +39,14 @@ class _PlaylistState extends State<Playlist> {
           Positioned(
             top: 90,
             right: 20,
-            child: Container(
+            child: SizedBox(
               height: 35,
               width: 210,
               child: TextField(
                 onChanged: (value) => onSearch(value),
                 decoration: InputDecoration(
                   filled: true,
-                  fillColor: Color(0x7E5496).withOpacity(1),
+                  fillColor: const Color(0x007e5496).withOpacity(1),
                   prefixIcon: const Icon(Icons.search_rounded),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(50),
@@ -97,20 +93,9 @@ class _PlaylistState extends State<Playlist> {
           Align(
             alignment: Alignment.centerLeft,
             child: Container(
-                margin: EdgeInsets.only(top: 180, left: 30, right: 20),
-                child: ListView.builder(
-                  itemCount: _songs.length,
-                  itemBuilder: (context, index) {
-                    return GestureDetector(
-                        onLongPress: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => const AddPlaylist()),
-                          );
-                        },
-                        child: SongComponent(song: _songs[index], type: "play",));
-                  },
+                margin: const EdgeInsets.only(top: 180, left: 30, right: 20),
+                child: const SizedBox(
+                  height: 100,
                 )),
           ),
           Positioned(
@@ -124,7 +109,7 @@ class _PlaylistState extends State<Playlist> {
                 allowHalfRating: true,
                 itemCount: 5,
                 itemSize: 25,
-                itemBuilder: (context, _) => Icon(
+                itemBuilder: (context, _) => const Icon(
                   Icons.star,
                   color: Colors.black,
                 ),
@@ -138,7 +123,7 @@ class _PlaylistState extends State<Playlist> {
             child: Container(
               padding: const EdgeInsets.all(16),
               child: IconButton(
-                icon: Icon(Icons.more_horiz),
+                icon: const Icon(Icons.more_horiz),
                 onPressed: () {
                   Navigator.push(
                     context,
@@ -155,7 +140,7 @@ class _PlaylistState extends State<Playlist> {
             child: Container(
               padding: const EdgeInsets.all(16),
               child: IconButton(
-                icon: Icon(Icons.shuffle),
+                icon: const Icon(Icons.shuffle),
                 onPressed: () {
                   // Add your button functionality here
                 },
@@ -170,7 +155,7 @@ class _PlaylistState extends State<Playlist> {
               height: 100,
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Color(0x571B79).withOpacity(1),
+                color: const Color(0x00571b79).withOpacity(1),
                 borderRadius: const BorderRadius.only(
                   topLeft: Radius.circular(20.0),
                 ),
@@ -194,27 +179,13 @@ class _PlaylistState extends State<Playlist> {
                             ? Icons.pause_circle_filled
                             : Icons.play_circle_fill),
                       ),
-                      SizedBox(
+                      const SizedBox(
                           width:
                               27), // Adjust the spacing between icon and text
-                      Text(
-                        _songs.isNotEmpty ? _songs[0].songName : "Song Name",
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: Colors.white,
-                        ),
-                      ),
                     ],
                   ),
-                  SizedBox(
+                  const SizedBox(
                       height: 0), // Adjust the spacing between icon and text
-                  Text(
-                    _songs.isNotEmpty ? _songs[0].artistName : "Artist Name",
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.white,
-                    ),
-                  ),
                 ],
               ),
             ),

@@ -2,11 +2,13 @@ import 'package:audio_video_progress_bar/audio_video_progress_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:mellowde/controls.dart';
+import 'package:mellowde/models/song.dart';
 import 'package:mellowde/position_data.dart';
 import 'package:rxdart/rxdart.dart';
 
 class SongPlaying extends StatefulWidget {
-  const SongPlaying({super.key});
+  final Song song;
+  const SongPlaying({Key? key, required this.song}) : super(key: key);
 
   @override
   State<SongPlaying> createState() => _SongPlayingState();
@@ -29,7 +31,7 @@ class _SongPlayingState extends State<SongPlaying> {
   @override
   void initState() {
     super.initState();
-    _audioPlayer = AudioPlayer()..setAsset('assets/audio/BasketCase.mp3');
+    _audioPlayer = AudioPlayer()..setUrl(widget.song.songPath);
 
     _audioPlayer.positionStream;
     _audioPlayer.bufferedPositionStream;
@@ -47,15 +49,11 @@ class _SongPlayingState extends State<SongPlaying> {
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
-          centerTitle: true,
-          elevation: 0.0,
-          backgroundColor: const Color(0x00000000),
-          toolbarHeight: 130,
-          title: const Text("Dainos pavadinimas",
-              style: TextStyle(
-                fontFamily: 'Karla',
-                fontSize: 23,
-              ))),
+        centerTitle: true,
+        elevation: 0.0,
+        backgroundColor: const Color(0x00000000),
+        toolbarHeight: 130,
+      ),
       body: StreamBuilder<PositionData>(
         stream: _positionDataStream,
         builder: (context, snapshot) {
@@ -79,8 +77,8 @@ class _SongPlayingState extends State<SongPlaying> {
                     padding: const EdgeInsets.all(8.0),
                     child: ClipOval(
                       // Use ClipOval to make the child (image) circular
-                      child: Image.asset(
-                        "assets/DookieGreenDay.png",
+                      child: Image.network(
+                        widget.song.imagePath,
                         height: 200,
                         width: 200,
                       ),
@@ -88,9 +86,9 @@ class _SongPlayingState extends State<SongPlaying> {
                   ),
                 ),
                 const SizedBox(height: 20),
-                const Text(
-                  "Basket Case",
-                  style: TextStyle(
+                Text(
+                  widget.song.songName,
+                  style: const TextStyle(
                     color: Colors.black,
                     fontSize: 22,
                     fontFamily: "Karla",
@@ -98,9 +96,9 @@ class _SongPlayingState extends State<SongPlaying> {
                   ),
                   textAlign: TextAlign.center,
                 ),
-                const Text(
-                  "Green Day",
-                  style: TextStyle(
+                Text(
+                  widget.song.artistName,
+                  style: const TextStyle(
                     color: Colors.black54,
                     fontFamily: "Karla",
                     fontSize: 22,
@@ -108,7 +106,9 @@ class _SongPlayingState extends State<SongPlaying> {
                   ),
                   textAlign: TextAlign.center,
                 ),
-                // Progress bar constrained within a fraction of the screen
+                const SizedBox(
+                  height: 10,
+                ),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 50.0),
                   child: ProgressBar(

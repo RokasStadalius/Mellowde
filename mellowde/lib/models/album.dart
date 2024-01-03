@@ -1,7 +1,10 @@
 class Album {
-  String name;
-  String authorName;
-  String imagePath;
+  int idAlbum;
+  String title;
+  String coverURL;
+  int idArtist;
+  String artistName;
 
-  Album(this.name, this.authorName, this.imagePath);
+  Album(
+      this.idAlbum, this.title, this.coverURL, this.idArtist, this.artistName);
 }

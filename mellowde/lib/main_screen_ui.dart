@@ -29,7 +29,7 @@ class _MainScreenState extends State<MainScreen> {
     // Retrieve user information from the provider
     user_info = Provider.of<UserInfoProvider>(context, listen: false).userInfo!;
   }
-  
+
   List<String> myPlaylists = [
     "Playlist 1",
     "Playlist 2",
@@ -41,10 +41,6 @@ class _MainScreenState extends State<MainScreen> {
     "Playlist 8",
     "Playlist 9",
     "Playlist 10"
-  ];
-  final List<Song> _songs = [
-    Song("Basket Case", "Green Day", "assets/DookieGreenDay.png",
-        "assets/audio/BasketCase.mp3"),
   ];
   @override
   Widget build(BuildContext context) {
@@ -62,14 +58,16 @@ class _MainScreenState extends State<MainScreen> {
                 MaterialPageRoute(
                     builder: (context) => const AlbumSearchScreen()),
               );
-            }
+            } else if (newIndex == 2) {}
           },
           items: const [
             BottomNavigationBarItem(
               label: "Songs",
               icon: Icon(Icons.music_note),
             ),
-            BottomNavigationBarItem(icon: Icon(Icons.album), label: "Albums")
+            BottomNavigationBarItem(icon: Icon(Icons.album), label: "Albums"),
+            BottomNavigationBarItem(
+                icon: Icon(Icons.recommend), label: "Recommendations")
           ],
         ),
         appBar: AppBar(
@@ -88,11 +86,11 @@ class _MainScreenState extends State<MainScreen> {
             ),
           ],
           //leading: Padding(
-            //padding: const EdgeInsets.all(5.0),
-            //child: IconButton(
-              //icon: Image.asset("assets/logo.png"),
-              //onPressed: () {},
-            //),
+          //padding: const EdgeInsets.all(5.0),
+          //child: IconButton(
+          //icon: Image.asset("assets/logo.png"),
+          //onPressed: () {},
+          //),
           //),
           elevation: 0,
           backgroundColor: const Color(0x00000000),
@@ -107,11 +105,13 @@ class _MainScreenState extends State<MainScreen> {
                   itemCount: myPlaylists.length,
                   scrollDirection: Axis.horizontal,
                   itemBuilder: (context, index) => GestureDetector(
-                    onTap: () {Navigator.push(
+                    onTap: () {
+                      Navigator.push(
                         context,
                         MaterialPageRoute(
                             builder: (context) => const Playlist()),
-                      );},
+                      );
+                    },
                     child: Container(
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(10),
@@ -149,30 +149,6 @@ class _MainScreenState extends State<MainScreen> {
                       ))),
               const SizedBox(
                 height: 20,
-              ),
-              Expanded(
-                child: Container(
-                  constraints: const BoxConstraints(
-                      maxHeight: 500), // Set a maximum height for the song list
-                  child: ListView.builder(
-                    itemCount: _songs.length,
-                    shrinkWrap: true,
-                    itemBuilder: (context, index) {
-                    return GestureDetector(
-                        onLongPress: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => const AddPlaylist()),
-                          );
-                        },
-                        child: SongComponent(
-                          song: _songs[index],
-                          type: "play"
-                          ));
-                  },
-                  ),
-                ),
               ),
             ],
           ),
