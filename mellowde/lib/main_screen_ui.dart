@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:mellowde/add_to_playlsit_ui.dart';
 import 'package:mellowde/album_search_ui.dart';
 import 'package:mellowde/models/song.dart';
+import 'package:mellowde/playlist_create_ui.dart';
+import 'package:mellowde/playlist_search_ui.dart';
 import 'package:mellowde/playlist_ui.dart';
 import 'package:mellowde/profile_details_ui.dart';
 import 'package:mellowde/song_component.dart';
@@ -11,6 +13,7 @@ import 'package:mellowde/song_search_ui.dart';
 import 'package:provider/provider.dart';
 import 'models/user_info.dart';
 import 'user_info_provider.dart';
+import 'package:http/http.dart' as http;
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -42,11 +45,27 @@ class _MainScreenState extends State<MainScreen> {
     "Playlist 9",
     "Playlist 10"
   ];
+
+  Future<bool> checkIfPlaylistsExist() async {
+    // Užklausa į duomenų bazę, kuri tikrina, ar yra sukurtų playlistų
+    // Galite pakeisti šią užklausą priklausomai nuo jūsų duomenų bazės struktūros
+    final response = await http.get(Uri.parse('http://10.0.2.2/check_playlists.php'));
+
+    if (response.statusCode == 200) {
+      // Čia gauname atsakymą iš serverio
+      return response.body.toLowerCase() == 'true';
+    } else {
+      // Įvyko klaida, apie tai pranešame ir grąžiname false
+      print('Klaida tikrinant playlistus: ${response.statusCode}');
+      return false;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         bottomNavigationBar: BottomNavigationBar(
-          onTap: (newIndex) {
+          onTap: (newIndex) async {
             if (newIndex == 0) {
               Navigator.push(
                 context,
@@ -58,7 +77,26 @@ class _MainScreenState extends State<MainScreen> {
                 MaterialPageRoute(
                     builder: (context) => const AlbumSearchScreen()),
               );
-            } else if (newIndex == 2) {}
+            } else if (newIndex == 2) {
+              bool playlistsExist = await checkIfPlaylistsExist();
+            if (playlistsExist) {
+              // Atidarome PlaylistSearchScreen, jei yra playlistų
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const PlaylistSearchScreen(),
+                ),
+              );
+            } else {
+              // Atidarome PlaylistCreateUI, jei nėra playlistų
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const PlaylistCreation(),
+                ),
+              );
+            }
+            }
           },
           items: const [
             BottomNavigationBarItem(
@@ -67,7 +105,7 @@ class _MainScreenState extends State<MainScreen> {
             ),
             BottomNavigationBarItem(icon: Icon(Icons.album), label: "Albums"),
             BottomNavigationBarItem(
-                icon: Icon(Icons.recommend), label: "Recommendations")
+                icon: Icon(Icons.playlist_play), label: "Playlists")
           ],
         ),
         appBar: AppBar(
@@ -109,7 +147,7 @@ class _MainScreenState extends State<MainScreen> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => const Playlist()),
+                            builder: (context) => const PlaylistUi()),
                       );
                     },
                     child: Container(

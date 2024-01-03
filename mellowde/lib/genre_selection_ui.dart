@@ -31,7 +31,7 @@ class _GenreSelectionScreenState extends State<GenreSelectionScreen> {
 
   Future<void> _fetchGenres() async {
     final response =
-        await http.get(Uri.parse('http://192.168.1.124/genre.php'));
+        await http.get(Uri.parse('http://10.0.2.2/genre.php'));
 
     if (response.statusCode == 200) {
       final List<dynamic> jsonResponse = json.decode(response.body);
@@ -52,7 +52,7 @@ class _GenreSelectionScreenState extends State<GenreSelectionScreen> {
         .toList();
 
     final response = await http.post(
-      Uri.parse('http://192.168.1.124/favouritegenre.php'),
+      Uri.parse('http://10.0.2.2/favouritegenre.php'),
       body: {
         'userId': user_info.idUser.toString(), // Pass the user ID
         'genres':

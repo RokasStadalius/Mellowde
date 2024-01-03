@@ -42,7 +42,7 @@ class _LoginPageState extends State<LoginPage> {
       return; // Stop further execution
     }
 
-    const apiUrl = 'http://192.168.1.124/login.php';
+    const apiUrl = 'http://10.0.2.2/login.php';
 
     try {
       final response = await http.post(

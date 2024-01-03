@@ -1,14 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:mellowde/image_container.dart';
+import 'package:http/http.dart' as http;
+import 'package:image_picker/image_picker.dart';
+import 'package:mellowde/main_screen_ui.dart';
+import 'dart:io';
+import 'package:mellowde/models/playlist.dart';
+import 'package:mellowde/playlist_search_ui.dart';
 
 class PlaylistEdit extends StatefulWidget {
-  const PlaylistEdit({Key? key}) : super(key: key);
+  final int? idPlaylist; 
+  const PlaylistEdit({Key? key, this.idPlaylist}) : super(key: key);
 
   @override
   State<PlaylistEdit> createState() => _PlaylistEditState();
 }
 
 class _PlaylistEditState extends State<PlaylistEdit> {
+  TextEditingController nameController = TextEditingController();
+  TextEditingController descriptionController = TextEditingController();
+  TextEditingController imageUrlController = TextEditingController();
+  File? _selectedImage;
+  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -35,9 +48,10 @@ class _PlaylistEditState extends State<PlaylistEdit> {
               Container(
                 width: 300,
                 height: 65,
-                padding: const EdgeInsets.only(left: 25, right: 20, top: 15),
+                padding: const EdgeInsets.only(left: 25, right: 20, top: 10),
                 margin: const EdgeInsets.symmetric(horizontal: 70),
                 child: TextField(
+                  controller: nameController,
                   textAlign: TextAlign.center,
                   decoration: InputDecoration(
                     filled: true,
@@ -61,7 +75,9 @@ class _PlaylistEditState extends State<PlaylistEdit> {
                 padding: const EdgeInsets.only(left: 25, right: 20, top: 10),
                 width: 200,
                 child: ElevatedButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    pickImage();
+                  },
                   child: const Text(
                     'Select Cover',
                     style: TextStyle(fontFamily: "Karla"),
@@ -73,18 +89,45 @@ class _PlaylistEditState extends State<PlaylistEdit> {
                 ),
               ),
               Container(
-                padding: const EdgeInsets.only(left: 0, top: 150, bottom: 100),
-                child: ImageContainer(
-                  height: 200,
-                  width: 200,
-                  imagePath: "",
+                padding: const EdgeInsets.only(top: 70),
+                margin: const EdgeInsets.symmetric(horizontal: 40),
+                child: TextField(
+                  controller: descriptionController,
+                  maxLines: 5,
+                  textAlign: TextAlign.center,
+                  decoration: InputDecoration(
+                    filled: true,
+                    fillColor: Colors.deepPurple.withOpacity(0.30),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: BorderSide(
+                        color: Colors.deepPurple.withOpacity(0.15),
+                      ),
+                    ),
+                    hintStyle: const TextStyle(
+                      fontFamily: "Karla",
+                      fontSize: 20,
+                      color: Colors.black38,
+                    ),
+                    hintText: "Description...",
+                  ),
                 ),
               ),
               Container(
-                padding: const EdgeInsets.only(left: 55, right: 45, top: 50),
+                padding: const EdgeInsets.only(left: 0, top: 60, bottom: 20),
+                child: ImageContainer(
+                  height: 200,
+                  width: 200,
+                  imagePath: _selectedImage?.path ?? '',
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.only(left: 55, right: 45, top: 10),
                 width: 250,
                 child: ElevatedButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    savePlaylist();
+                  },
                   child: const Text(
                     'Save',
                     style: TextStyle(fontFamily: "Karla"),
@@ -100,7 +143,9 @@ class _PlaylistEditState extends State<PlaylistEdit> {
                 width: 220,
                 height: 35,
                 child: ElevatedButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    deletePlaylist();
+                  },
                   child: const Text(
                     'Delete',
                     style: TextStyle(fontFamily: "Karla"),
@@ -117,10 +162,59 @@ class _PlaylistEditState extends State<PlaylistEdit> {
       ),
     );
   }
+  
+  void pickImage() async {
+    final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
+
+    setState(() {
+      if (pickedFile != null) {
+        _selectedImage = File(pickedFile.path);
+        imageUrlController.text = pickedFile.path;
+      }
+    });
+  }
+
+ void deletePlaylist() async {
+    String url = 'http://10.0.2.2/playlist_delete.php';
+    Map<String, String> headers = {'Content-Type': 'application/x-www-form-urlencoded'};
+    Map<String, String> body = {
+      'playlistId': widget.idPlaylist.toString(),
+    };
+
+    var response = await http.post(Uri.parse(url), headers: headers, body: body);
+
+    if (response.statusCode == 200) {
+      print("Playlist ištrintas sėkmingai.");
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const MainScreen()),
+      );
+    } else {
+      print("Klaida: ${response.body}");
+    }
 }
 
+  void savePlaylist() async {
+    // Siunčiame POST užklausą į serverį su naujais duomenimis
+    String url = 'http://10.0.2.2/playlist_edit.php';
+    Map<String, String> headers = {'Content-Type': 'application/x-www-form-urlencoded'};
+    Map<String, String> body = {
+      'playlistId': widget.idPlaylist.toString(),  // Pakeiskite į jūsų playlisto ID
+      'name': nameController.text,
+      'description': descriptionController.text,
+      'imageUrl': imageUrlController.text,
+    };
 
+    var response = await http.post(Uri.parse(url), headers: headers, body: body);
 
-
-
-
+    if (response.statusCode == 200) {
+      print("Playlist atnaujintas sėkmingai.");
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const PlaylistSearchScreen()),
+      );
+    } else {
+      print("Klaida: ${response.body}");
+    }
+  }
+}

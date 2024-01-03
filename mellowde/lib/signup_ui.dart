@@ -77,7 +77,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
       return;
     }
 
-    const apiUrl = 'http://192.168.1.124/check_existing.php';
+    const apiUrl = 'http://10.0.2.2/check_existing.php';
     email = emailController.text;
     password = passwordController.text;
     name = nameController.text;
@@ -130,7 +130,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
     String? verificationCode = await sendMail(recipientEmail, context);
 
     if (verificationCode != null) {
-      const registerApiUrl = 'http://192.168.1.124/register.php';
+      const registerApiUrl = 'http://10.0.2.2/register.php';
       try {
         final registerResponse = await http.post(
           Uri.parse(registerApiUrl),

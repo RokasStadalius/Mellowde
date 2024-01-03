@@ -38,7 +38,7 @@ class _SettingScreenState extends State<SettingScreen> {
   }
 
   void saveUserInfo() async {
-  const apiUrl = 'http://192.168.1.64//settings.php';
+  const apiUrl = 'http://10.0.2.2//settings.php';
 
   // Get the updated user information
   String newUsername = usernameController.text;
@@ -173,7 +173,7 @@ class _SettingScreenState extends State<SettingScreen> {
 
     if (confirm == true) {
       // User confirmed, proceed with account deletion
-      const apiUrl = 'http://192.168.1.64//deleteaccount.php';
+      const apiUrl = 'http://10.0.2.2//deleteaccount.php';
 
       try {
         final response = await http.post(
