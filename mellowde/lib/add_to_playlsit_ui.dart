@@ -1,15 +1,52 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:mellowde/models/playlist.dart';
+import 'package:mellowde/models/song.dart';
 import 'package:mellowde/playlist_create_ui.dart';
-import 'package:mellowde/playlist_ui.dart';
 
-class AddPlaylist extends StatefulWidget{
-  const AddPlaylist({Key? key}) : super(key: key);
+class AddPlaylist extends StatefulWidget {
+  final Song? song;
+
+  const AddPlaylist({Key? key, this.song}) : super(key: key);
 
   @override
   State<AddPlaylist> createState() => _AddPlaylistState();
 }
 
 class _AddPlaylistState extends State<AddPlaylist> {
+  List<Playlist> _playlists = [];
+
+  @override
+  void initState() {
+    super.initState();
+    fetchPlaylists();
+  }
+
+  void fetchPlaylists() async {
+  try {
+    final response =
+        await http.get(Uri.parse('http://10.0.2.2/fetchplaylistsall.php'));
+
+    if (response.statusCode == 200) {
+      final List<dynamic> data = json.decode(response.body);
+
+      if (data.isNotEmpty) {
+        setState(() {
+          _playlists.addAll(data.map(
+              (playlistData) => Playlist.fromJson(playlistData)).toList());
+        });
+      } else {
+        print("Gauti playlistai yra tušti.");
+      }
+    } else {
+      throw Exception('Nepavyko gauti playlistų iš serverio.');
+    }
+  } catch (e) {
+    print("Klaida gavus playlistus: $e");
+  }
+}
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -36,8 +73,8 @@ class _AddPlaylistState extends State<AddPlaylist> {
             left: 80,
             child: Container(
               padding: const EdgeInsets.all(16),
-              child: const Text(
-                "BasketCase - Green Day",
+              child: Text(
+                widget.song?.songName ?? "",
                 style: TextStyle(
                   fontFamily: "Karla",
                   fontSize: 20,
@@ -53,11 +90,14 @@ class _AddPlaylistState extends State<AddPlaylist> {
               padding: const EdgeInsets.all(16),
               width: 200,
               child: ElevatedButton(
-                onPressed: () {Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const PlaylistCreation()),
-                      );},
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const PlaylistCreation(),
+                    ),
+                  );
+                },
                 child: const Text(
                   'Create',
                   style: TextStyle(fontFamily: "Karla"),
@@ -77,13 +117,12 @@ class _AddPlaylistState extends State<AddPlaylist> {
               width: 280,
               height: 150,
               child: ElevatedButton(
-                onPressed: () {Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const Playlist()),
-                      );},
-                child: const Text(
-                  'My Playlist 1',
+                onPressed: () {
+                  // Pridėti dainą į pasirinktą playlist'ą
+                  addToPlaylist(_playlists[0].playlistId);
+                },
+                child: Text(
+                  _playlists.isNotEmpty ? _playlists[0].name : "Playlist 1",
                   style: TextStyle(fontFamily: "Karla"),
                 ),
                 style: ElevatedButton.styleFrom(
@@ -92,79 +131,28 @@ class _AddPlaylistState extends State<AddPlaylist> {
               ),
             ),
           ),
-          Positioned(
-            top: 440,
-            left: 60,
-            child: Container(
-              padding: const EdgeInsets.all(16),
-              width: 280,
-              height: 150,
-              child: ElevatedButton(
-                onPressed: () {Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const Playlist()),
-                      );},
-                child: const Text(
-                  'My Playlist 2',
-                  style: TextStyle(fontFamily: "Karla"),
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Color(0x7E5496).withOpacity(1),
-                ),
-              ),
-            ),
-          ),
-          Positioned(
-            bottom: 160,
-            left: 60,
-            child: Container(
-              padding: const EdgeInsets.all(16),
-              width: 280,
-              height: 150,
-              child: ElevatedButton(
-                onPressed: () {Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const Playlist()),
-                      );},
-                child: const Text(
-                  'My Playlist 3',
-                  style: TextStyle(fontFamily: "Karla"),
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Color(0x7E5496).withOpacity(1),
-                ),
-              ),
-            ),
-          ),
-          Positioned(
-            bottom: 20,
-            left: 60,
-            child: Container(
-              padding: const EdgeInsets.all(16),
-              width: 280,
-              height: 150,
-              child: ElevatedButton(
-                onPressed: () {Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const Playlist()),
-                      );},
-                child: const Text(
-                  'My Playlist 4',
-                  style: TextStyle(fontFamily: "Karla"),
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Color(0x7E5496).withOpacity(1),
-                ),
-              ),
-            ),
-          ),
+          // Likusius playlistus pridėkite čia
         ],
       ),
     );
   }
+
+  void addToPlaylist(int playlistId) async {
+    // Siunčiame POST užklausą į serverį su dainos ir playlisto ID
+    String url = 'http://10.0.2.2/add_to_playlist.php';
+    Map<String, String> headers = {'Content-Type': 'application/x-www-form-urlencoded'};
+    Map<String, String> body = {
+      'songId': widget.song?.idSong.toString() ?? "",
+      'playlistId': playlistId.toString(),
+    };
+
+    var response = await http.post(Uri.parse(url), headers: headers, body: body);
+
+    if (response.statusCode == 200) {
+      print("Daina pridėta į playlist'ą sėkmingai.");
+      // Įdėkite navigacijos logiką, jei norite pereiti į kitą ekraną po pridėjimo
+    } else {
+      print("Klaida: ${response.body}");
+    }
+  }
 }
-
-

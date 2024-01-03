@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:mellowde/add_to_playlsit_ui.dart';
 import 'package:mellowde/main_screen_ui.dart';
 import 'package:mellowde/models/song.dart'; // Import your Song model
+import 'package:mellowde/profile_details_ui.dart';
 import 'package:mellowde/song_component.dart';
 
 class SongSearch extends StatefulWidget {
@@ -50,7 +51,13 @@ class _SongSearchState extends State<SongSearch> {
           const SizedBox(width: 1),
           IconButton(
             icon: Image.asset("assets/usericon.jpg"),
-            onPressed: () {},
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => const ProfileDetailsScreen()),
+              );
+            },
           ),
         ],
         leading: Padding(

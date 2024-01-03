@@ -4,17 +4,47 @@ import 'package:mellowde/add_to_playlsit_ui.dart';
 import 'package:mellowde/models/song.dart';
 import 'package:mellowde/playlist_edit_ui.dart';
 import 'package:mellowde/song_component.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:mellowde/shuffle_algorithm.dart';
 
-class Playlist extends StatefulWidget {
-  const Playlist({Key? key}) : super(key: key);
+
+class PlaylistUi extends StatefulWidget {
+  const PlaylistUi({Key? key}) : super(key: key);
 
   @override
-  State<Playlist> createState() => _PlaylistState();
+  State<PlaylistUi> createState() => _PlaylistState();
 }
 
-class _PlaylistState extends State<Playlist> {
+class _PlaylistState extends State<PlaylistUi> {
+  List<Song> _songs = [];
   bool isIconPressed = true;
 
+  @override
+  void initState() {
+    super.initState();
+    fetchSongs();
+  }
+
+  void fetchSongs() async {
+    final response = await http.get(Uri.parse('http://10.0.2.2/insert_playlsit.php'));
+
+    if (response.statusCode == 200) {
+      final List<dynamic> data = json.decode(response.body);
+      setState(() {
+        _songs.addAll(data.map((songData) => Song.fromJson(songData)).toList());
+      });
+    } else {
+      throw Exception('Nepavyko gauti dainų iš serverio.');
+    }
+  }
+
+  // Function to handle shuffle button press
+  void handleShuffle() {
+    setState(() {
+      //_songs = ShuffleAlgorithm.autoShuffle(_songs);
+    });
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -39,14 +69,14 @@ class _PlaylistState extends State<Playlist> {
           Positioned(
             top: 90,
             right: 20,
-            child: SizedBox(
+            child: Container(
               height: 35,
               width: 210,
               child: TextField(
                 onChanged: (value) => onSearch(value),
                 decoration: InputDecoration(
                   filled: true,
-                  fillColor: const Color(0x007e5496).withOpacity(1),
+                  fillColor: const Color(0x7E5496).withOpacity(1),
                   prefixIcon: const Icon(Icons.search_rounded),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(50),
@@ -94,8 +124,19 @@ class _PlaylistState extends State<Playlist> {
             alignment: Alignment.centerLeft,
             child: Container(
                 margin: const EdgeInsets.only(top: 180, left: 30, right: 20),
-                child: const SizedBox(
-                  height: 100,
+                child: ListView.builder(
+                  itemCount: _songs.length,
+                  itemBuilder: (context, index) {
+                    return GestureDetector(
+                        onLongPress: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const AddPlaylist()),
+                          );
+                        },
+                        child: SongComponent(song: _songs[index], type: "play",));
+                  },
                 )),
           ),
           Positioned(
@@ -142,7 +183,7 @@ class _PlaylistState extends State<Playlist> {
               child: IconButton(
                 icon: const Icon(Icons.shuffle),
                 onPressed: () {
-                  // Add your button functionality here
+                  handleShuffle();
                 },
               ),
             ),
@@ -155,7 +196,7 @@ class _PlaylistState extends State<Playlist> {
               height: 100,
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: const Color(0x00571b79).withOpacity(1),
+                color: const Color(0x571B79).withOpacity(1),
                 borderRadius: const BorderRadius.only(
                   topLeft: Radius.circular(20.0),
                 ),
@@ -182,10 +223,24 @@ class _PlaylistState extends State<Playlist> {
                       const SizedBox(
                           width:
                               27), // Adjust the spacing between icon and text
+                      Text(
+                        _songs.isNotEmpty ? _songs[0].songName : "Song Name",
+                        style: const TextStyle(
+                          fontSize: 16,
+                          color: Colors.white,
+                        ),
+                      ),
                     ],
                   ),
                   const SizedBox(
                       height: 0), // Adjust the spacing between icon and text
+                  Text(
+                    _songs.isNotEmpty ? _songs[0].artistName : "Artist Name",
+                    style: const TextStyle(
+                      fontSize: 14,
+                      color: Colors.white,
+                    ),
+                  ),
                 ],
               ),
             ),

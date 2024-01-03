@@ -28,7 +28,7 @@ class _ProfileDetailsScreenState extends State<ProfileDetailsScreen> {
 
   Future<void> updateProfilePicture(String newImageUrl, int userId) async {
     const String apiUrl =
-        'http://192.168.1.124/profile_pic.php'; // Update with your server path
+        'http://10.0.2.2/profile_pic.php'; // Update with your server path
     final response = await http.post(
       Uri.parse(apiUrl),
       body: {

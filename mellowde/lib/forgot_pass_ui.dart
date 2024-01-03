@@ -154,7 +154,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
   _ChangePasswordScreenState({required this.email});
 
   Future<void> changePassword(String email, String newPassword) async {
-    final String apiUrl = 'http://192.168.1.64/reminder.php';
+    final String apiUrl = 'http://10.0.2.2/reminder.php';
     final response = await http.post(
       Uri.parse(apiUrl),
       headers: <String, String>{
