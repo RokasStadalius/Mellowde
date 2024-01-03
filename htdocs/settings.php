@@ -45,12 +45,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
 
             if (!empty($newEmail)) {
+                // Check if the new email is not already in use
                 $checkEmailQuery = "SELECT * FROM User WHERE email = '$newEmail' AND idUser != '$idUser'";
                 $emailResult = $conn->query($checkEmailQuery);
 
                 if ($emailResult->num_rows == 0) {
                     $updateFields[] = "email = '$newEmail'";
                 } else {
+                    // Email is already in use
                     echo json_encode(['success' => false, 'message' => 'Email is already in use']);
                     exit();
                 }
@@ -60,29 +62,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $updateFields[] = "password = '$newPassword'";
             }
         } else {
+            // Old password doesn't match
             echo json_encode(['success' => false, 'message' => 'Old password is incorrect']);
             exit();
         }
     } else {
+        // Old password is required for updates
         echo json_encode(['success' => false, 'message' => 'Old password is required']);
         exit();
     }
 
+    // Check if there are fields to update and proceed with the query
     if (!empty($updateFields)) {
         $updateQuery = "UPDATE User SET " . implode(', ', $updateFields) . " WHERE idUser = '$idUser'";
 
         if ($conn->query($updateQuery) === TRUE) {
-            // Fetch updated user data
-            $fetchUserQuery = "SELECT * FROM User WHERE idUser = '$idUser'";
-            $userDataResult = $conn->query($fetchUserQuery);
-            
-            if ($userDataResult->num_rows > 0) {
-                $userData = $userDataResult->fetch_assoc();
-                echo json_encode(['success' => true, 'message' => 'User info updated successfully', 'userData' => $userData]);
-            } else {
-                echo json_encode(['success' => false, 'message' => 'Failed to fetch updated user data']);
-            }
+            // Update successful
+            echo json_encode(['success' => true, 'message' => 'User info updated successfully']);
         } else {
+            // Update failed
             echo json_encode(['success' => false, 'message' => 'Error updating user info: ' . $conn->error]);
         }
     }
