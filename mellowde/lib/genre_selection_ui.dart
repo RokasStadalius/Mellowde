@@ -176,7 +176,7 @@ class _GenreSelectionScreenState extends State<GenreSelectionScreen> {
               backgroundColor: const Color.fromRGBO(150, 84, 132, 100),
             ),
             child: const Text(
-              'Skip',
+              'Exit',
               style: TextStyle(fontFamily: "Karla"),
             ),
           ),

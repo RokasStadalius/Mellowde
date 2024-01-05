@@ -2,6 +2,7 @@ import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:mellowde/welcome.dart';
+import 'package:mellowde/genre_selection_ui.dart';
 import 'dart:convert';
 import 'models/user_info.dart';
 import 'user_info_provider.dart';
@@ -268,6 +269,17 @@ class _SettingScreenState extends State<SettingScreen> {
               ElevatedButton(
                 onPressed: saveUserInfo,
                 child: const Text('Save'),
+              ),
+              const SizedBox(height: 10),  // Added a SizedBox for spacing
+              ElevatedButton(
+                onPressed: () {
+                  // Navigate to the GenreSelectionScreen
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => GenreSelectionScreen()),
+                  );
+                },
+                child: const Text('Select Genre'),
               ),
               const SizedBox(height: 20),
               ElevatedButton(

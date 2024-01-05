@@ -218,7 +218,7 @@ class _ProfileDetailsScreenState extends State<ProfileDetailsScreen> {
                     const SizedBox(
                       height: 150,
                     ),
-                    const Text("Bio",
+                    /*const Text("Bio",
                         style: TextStyle(
                             fontFamily: "Karla",
                             fontSize: 30,
@@ -229,7 +229,7 @@ class _ProfileDetailsScreenState extends State<ProfileDetailsScreen> {
                             fontFamily: "Karla", color: Colors.black)),
                     const SizedBox(
                       height: 32,
-                    ),
+                    ),*/
                     const Text("Songs",
                         style: TextStyle(
                             fontFamily: "Karla",
