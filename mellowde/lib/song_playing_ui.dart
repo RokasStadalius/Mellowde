@@ -116,6 +116,8 @@ class _SongPlayingState extends State<SongPlaying> {
     _audioPlayer.stop();
     _audioPlayer.setUrl(widget.songs[_currentIndex].songPath);
     _audioPlayer.play();
+
+     _addToUserHistory(user_info.idUser, widget.songs[_currentIndex].idSong);
   }
 
   void _playPrevious() {
@@ -126,8 +128,32 @@ class _SongPlayingState extends State<SongPlaying> {
       _audioPlayer.stop();
       _audioPlayer.setUrl(widget.songs[_currentIndex].songPath);
       _audioPlayer.play();
+
+      _addToUserHistory(user_info.idUser, widget.songs[_currentIndex].idSong);
     }
   }
+
+  Future<void> _addToUserHistory(int userId, int songId) async {
+  // Replace with your actual server URL
+  const String serverUrl = "http://10.0.2.2/addToHistory.php";
+  try {
+    final response = await http.post(
+      Uri.parse(serverUrl),
+      body: {
+        'idUser': userId.toString(),
+        'idSong': songId.toString(),
+      },
+    );
+
+    if (response.statusCode == 200) {
+      print('Song added to history successfully');
+    } else {
+      print('Failed to add song to history. Status code: ${response.statusCode}');
+    }
+  } catch (e) {
+    print('Error adding song to history: $e');
+  }
+}
 
   Future<void> loadAverageRating() async {
     // Fetch the average rating for the current song from the server

@@ -14,6 +14,8 @@ import 'package:provider/provider.dart';
 import 'models/user_info.dart';
 import 'user_info_provider.dart';
 import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:intl/intl.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -24,13 +26,14 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   late UserInfo user_info;
+  List<dynamic> userSongs = [];
 
   @override
   void initState() {
     super.initState();
-
     // Retrieve user information from the provider
     user_info = Provider.of<UserInfoProvider>(context, listen: false).userInfo!;
+    displayUserHistory();
   }
 
   List<String> myPlaylists = [
@@ -60,6 +63,39 @@ class _MainScreenState extends State<MainScreen> {
       return false;
     }
   }
+
+  Future<List<dynamic>> fetchUserHistory(int userId) async {
+    final response = await http.post(
+      Uri.parse('http://10.0.2.2/fetch_user_history.php'),
+      body: {'userId': userId.toString()},
+    );
+
+    if (response.statusCode == 200) {
+      // Parse the JSON response
+      print(jsonDecode(response.body));
+      List<dynamic> songs = jsonDecode(response.body);
+      return songs;
+    } else {
+      // Handle the error appropriately, for example, by throwing an exception
+      throw Exception('Failed to load user history');
+    }
+  }
+
+
+  Future<void> displayUserHistory() async {
+  try {
+    List<dynamic> songs = await fetchUserHistory(user_info.idUser); // Assuming user_info has the userId
+    
+    setState(() {
+      userSongs = songs;
+    });
+  } catch (error) {
+    print('Error fetching user history: $error');
+    // Handle the error, perhaps by showing an error message to the user
+  }
+}
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -188,8 +224,33 @@ class _MainScreenState extends State<MainScreen> {
               const SizedBox(
                 height: 20,
               ),
+              Expanded(
+                child: userSongs.isEmpty
+                    ? Center(
+                        child: Text(
+                          'No songs in history',
+                          style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
+                        ),
+                      )
+                    : ListView.builder(
+                        itemCount: userSongs.length,
+                        itemBuilder: (context, index) {
+                          final song = userSongs[index];
+                          return ListTile(
+                            leading: Image.network(song['coverURL']),
+                            title: Text(song['title']),
+                            subtitle: Text('Listened on: ${DateFormat('MMM d, HH:mm').format(DateTime.parse(song['play_date']))}'),
+
+                            onTap: () {
+                            },
+                          );
+                        },
+                      ),
+              )
             ],
           ),
+          
         ));
+        
   }
 }
