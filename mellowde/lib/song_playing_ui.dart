@@ -1,10 +1,15 @@
-import 'package:audio_video_progress_bar/audio_video_progress_bar.dart';
 import 'package:flutter/material.dart';
+import 'package:audio_video_progress_bar/audio_video_progress_bar.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:mellowde/controls.dart';
 import 'package:mellowde/models/song.dart';
+import 'package:mellowde/models/user_info.dart';
 import 'package:mellowde/position_data.dart';
+import 'package:mellowde/user_info_provider.dart';
+import 'package:provider/provider.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:http/http.dart' as http;
 
 class SongPlaying extends StatefulWidget {
   final List<Song> songs;
@@ -20,6 +25,50 @@ class SongPlaying extends StatefulWidget {
 class _SongPlayingState extends State<SongPlaying> {
   late AudioPlayer _audioPlayer;
   late int _currentIndex;
+  late UserInfo user_info;
+  double userRating = 0;
+  double avgRating = 0;
+
+  Future<void> _sendRating(double rating) async {
+    // Replace with your actual server URL
+    const String serverUrl = "http://10.0.2.2/ratingAdd.php";
+
+    try {
+      // Replace with your actual user ID and song ID
+      int userId = user_info.idUser;
+      final int songId = widget.songs[_currentIndex].idSong;
+
+      final response = await http.post(
+        Uri.parse(serverUrl),
+        body: {
+          'userId': userId.toString(),
+          'songId': songId.toString(),
+          'rating': rating.toString(),
+        },
+      );
+
+      if (response.statusCode == 200) {
+        // Show SnackBar upon successful rating addition
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Rating added successfully'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+
+        // Update the userRating state
+        setState(() {
+          userRating = rating;
+        });
+
+        print(response.body);
+      } else {
+        print('Failed to send rating. Status code: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error sending rating: $e');
+    }
+  }
 
   Stream<PositionData> get _positionDataStream =>
       Rx.combineLatest3<Duration, Duration, Duration?, PositionData>(
@@ -36,6 +85,7 @@ class _SongPlayingState extends State<SongPlaying> {
   @override
   void initState() {
     super.initState();
+    user_info = Provider.of<UserInfoProvider>(context, listen: false).userInfo!;
     _audioPlayer = AudioPlayer()
       ..setUrl(widget.songs[widget.initialIndex].songPath);
     _currentIndex = widget.initialIndex;
@@ -46,6 +96,9 @@ class _SongPlayingState extends State<SongPlaying> {
         _playNext();
       }
     });
+
+    // Load average rating when the widget is initialized
+    loadAverageRating();
   }
 
   void _playNext() {
@@ -73,6 +126,35 @@ class _SongPlayingState extends State<SongPlaying> {
       _audioPlayer.stop();
       _audioPlayer.setUrl(widget.songs[_currentIndex].songPath);
       _audioPlayer.play();
+    }
+  }
+
+  Future<void> loadAverageRating() async {
+    // Fetch the average rating for the current song from the server
+    // Replace with your actual server URL
+    const String serverUrl = "http://10.0.2.2/averageRating.php";
+
+    try {
+      final int songId = widget.songs[_currentIndex].idSong;
+
+      final response = await http.post(
+        Uri.parse(serverUrl),
+        body: {
+          'songId': songId.toString(),
+        },
+      );
+
+      if (response.statusCode == 200) {
+        // Parse the average rating from the response
+        setState(() {
+          avgRating = double.parse(response.body);
+        });
+      } else {
+        print(
+            'Failed to load average rating. Status code: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error loading average rating: $e');
     }
   }
 
@@ -169,6 +251,62 @@ class _SongPlayingState extends State<SongPlaying> {
                   currentIndex: _currentIndex,
                   onNext: _playNext,
                   onPrevious: _playPrevious,
+                ),
+                const SizedBox(
+                  height: 50,
+                ),
+                const Text(
+                  "Rate this song!",
+                  style: TextStyle(
+                    fontFamily: "Karla",
+                    fontSize: 20,
+                  ),
+                ),
+                // First Rating Bar for User Rating
+                RatingBar.builder(
+                  initialRating: userRating,
+                  minRating: 1,
+                  direction: Axis.horizontal,
+                  allowHalfRating: true,
+                  itemCount: 5,
+                  itemPadding: const EdgeInsets.symmetric(horizontal: 4.0),
+                  itemBuilder: (context, _) => const Icon(
+                    Icons.star,
+                    color: Colors.purple,
+                  ),
+                  onRatingUpdate: (rating) {
+                    print(rating);
+                    _sendRating(rating);
+                    print(avgRating);
+                    loadAverageRating();
+                  },
+                ),
+
+                // Spacer for some space between the rating bars
+                const SizedBox(height: 20),
+                const Text(
+                  "Current Rating",
+                  style: TextStyle(
+                    fontFamily: "Karla",
+                    fontSize: 20,
+                  ),
+                ),
+                // Second Rating Bar for Average Rating
+                RatingBar.builder(
+                  initialRating: avgRating,
+                  minRating: 1,
+                  direction: Axis.horizontal,
+                  allowHalfRating: true,
+                  itemCount: 5,
+                  itemPadding: const EdgeInsets.symmetric(horizontal: 4.0),
+                  itemBuilder: (context, _) => const Icon(
+                    Icons.star,
+                    color: Colors.purple,
+                  ),
+                  onRatingUpdate: (rating) {
+                    // This can be empty or you can handle the update if needed
+                  },
+                  ignoreGestures: true,
                 ),
               ],
             ),

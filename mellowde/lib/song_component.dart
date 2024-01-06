@@ -86,20 +86,6 @@ class _SongComponentState extends State<SongComponent> {
                     ],
                   ),
                 ),
-                // Add the delete IconButton
-                Expanded(
-                  child: Align(
-                    alignment: Alignment.centerRight,
-                    child: IconButton(
-                      icon: const Icon(
-                          Icons.delete), // Customize the icon as needed
-                      onPressed: () {
-                        // Define what happens when the delete button is pressed
-                        // For example: deleteSong(widget.song);
-                      },
-                    ),
-                  ),
-                ),
               ],
             )),
       ),
