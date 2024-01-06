@@ -10,7 +10,7 @@ import 'dart:convert';
 class EmailService {
   static Future<bool> sendVerificationCode(String recipientEmail,String code) async {
     String username = 'officialmellowde@gmail.com';
-    String password = 'pihw klyg qptp hrix';
+    String password = 'mved mdeg lvlg yvnw';
     final smtpServer = gmail(username, password);
 
     final message = Message()

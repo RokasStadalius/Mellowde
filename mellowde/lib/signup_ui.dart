@@ -189,7 +189,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   Future<String?> sendMail(String recipientEmail, BuildContext context) async {
     String username = 'officialmellowde@gmail.com';
-    String password = 'pihw klyg qptp hrix';
+    String password = 'mved mdeg lvlg yvnw';
     final smtpServer = gmail(username, password);
     int randomCode = Random().nextInt(900000) + 100000;
     String verificationCode = randomCode.toString();
