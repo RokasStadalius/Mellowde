@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:mellowde/models/album.dart';
 import 'package:mellowde/models/song.dart';
-import 'package:mellowde/song_component.dart'; // Import your SongComponent class
+import 'package:mellowde/song_component.dart';
+import 'package:mellowde/song_playing_ui.dart'; // Import your SongComponent class
 
 class AlbumSongScreen extends StatefulWidget {
   final Album album;
@@ -124,13 +125,15 @@ class _AlbumSongScreenState extends State<AlbumSongScreen> {
                         color: Colors.white,
                         iconSize: 36,
                         onPressed: () {
-                          setState(() {
-                            isIconPressed = !isIconPressed;
-                          });
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => SongPlaying(
+                                      songs: _songs,
+                                    )),
+                          );
                         },
-                        icon: Icon(isIconPressed
-                            ? Icons.pause_circle_filled
-                            : Icons.play_circle_fill),
+                        icon: const Icon(Icons.play_circle_fill),
                       ),
                       const SizedBox(
                         width: 27,
@@ -148,6 +151,4 @@ class _AlbumSongScreenState extends State<AlbumSongScreen> {
       ),
     );
   }
-
-  onSearch(String value) {}
 }

@@ -7,8 +7,11 @@ import 'package:mellowde/position_data.dart';
 import 'package:rxdart/rxdart.dart';
 
 class SongPlaying extends StatefulWidget {
-  final Song song;
-  const SongPlaying({Key? key, required this.song}) : super(key: key);
+  final List<Song> songs;
+  final int initialIndex;
+
+  const SongPlaying({Key? key, required this.songs, this.initialIndex = 0})
+      : super(key: key);
 
   @override
   State<SongPlaying> createState() => _SongPlayingState();
@@ -16,6 +19,7 @@ class SongPlaying extends StatefulWidget {
 
 class _SongPlayingState extends State<SongPlaying> {
   late AudioPlayer _audioPlayer;
+  late int _currentIndex;
 
   Stream<PositionData> get _positionDataStream =>
       Rx.combineLatest3<Duration, Duration, Duration?, PositionData>(
@@ -28,14 +32,48 @@ class _SongPlayingState extends State<SongPlaying> {
           duration ?? Duration.zero,
         ),
       );
+
   @override
   void initState() {
     super.initState();
-    _audioPlayer = AudioPlayer()..setUrl(widget.song.songPath);
+    _audioPlayer = AudioPlayer()
+      ..setUrl(widget.songs[widget.initialIndex].songPath);
+    _currentIndex = widget.initialIndex;
 
-    _audioPlayer.positionStream;
-    _audioPlayer.bufferedPositionStream;
-    _audioPlayer.durationStream;
+    _audioPlayer.positionStream.listen((position) {
+      // Check if the song has finished and move to the next one
+      if (position == _audioPlayer.duration) {
+        _playNext();
+      }
+    });
+  }
+
+  void _playNext() {
+    if (_currentIndex < widget.songs.length - 1) {
+      setState(() {
+        _currentIndex++;
+      });
+    } else {
+      // If at the end of the queue, loop back to the beginning
+      setState(() {
+        _currentIndex = 0;
+      });
+    }
+
+    _audioPlayer.stop();
+    _audioPlayer.setUrl(widget.songs[_currentIndex].songPath);
+    _audioPlayer.play();
+  }
+
+  void _playPrevious() {
+    if (_currentIndex > 0) {
+      setState(() {
+        _currentIndex--;
+      });
+      _audioPlayer.stop();
+      _audioPlayer.setUrl(widget.songs[_currentIndex].songPath);
+      _audioPlayer.play();
+    }
   }
 
   @override
@@ -59,11 +97,11 @@ class _SongPlayingState extends State<SongPlaying> {
         builder: (context, snapshot) {
           final positionData = snapshot.data;
           return Container(
-            width: MediaQuery.of(context).size.width, // Full screen width
+            width: MediaQuery.of(context).size.width,
             decoration: const BoxDecoration(
               image: DecorationImage(
                 image: AssetImage('assets/song_playing_bg.png'),
-                fit: BoxFit.cover, // Ensure the image covers the entire space
+                fit: BoxFit.cover,
               ),
             ),
             child: Column(
@@ -71,14 +109,13 @@ class _SongPlayingState extends State<SongPlaying> {
               children: [
                 DecoratedBox(
                   decoration: const BoxDecoration(
-                    shape: BoxShape.circle, // Set the shape to circle
+                    shape: BoxShape.circle,
                   ),
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: ClipOval(
-                      // Use ClipOval to make the child (image) circular
                       child: Image.network(
-                        widget.song.imagePath,
+                        widget.songs[_currentIndex].imagePath,
                         height: 200,
                         width: 200,
                       ),
@@ -87,7 +124,7 @@ class _SongPlayingState extends State<SongPlaying> {
                 ),
                 const SizedBox(height: 20),
                 Text(
-                  widget.song.songName,
+                  widget.songs[_currentIndex].songName,
                   style: const TextStyle(
                     color: Colors.black,
                     fontSize: 22,
@@ -97,7 +134,7 @@ class _SongPlayingState extends State<SongPlaying> {
                   textAlign: TextAlign.center,
                 ),
                 Text(
-                  widget.song.artistName,
+                  widget.songs[_currentIndex].artistName,
                   style: const TextStyle(
                     color: Colors.black54,
                     fontFamily: "Karla",
@@ -127,7 +164,12 @@ class _SongPlayingState extends State<SongPlaying> {
                   ),
                 ),
                 const SizedBox(height: 20),
-                Controls(audioPlayer: _audioPlayer),
+                Controls(
+                  audioPlayer: _audioPlayer,
+                  currentIndex: _currentIndex,
+                  onNext: _playNext,
+                  onPrevious: _playPrevious,
+                ),
               ],
             ),
           );

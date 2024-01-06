@@ -14,6 +14,7 @@ class SongComponent extends StatefulWidget {
 }
 
 class _SongComponentState extends State<SongComponent> {
+  List<Song> songs = [];
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -21,10 +22,11 @@ class _SongComponentState extends State<SongComponent> {
       child: InkWell(
         onTap: () {
           if (widget.type == "play") {
+            songs.add(widget.song);
             Navigator.push(
               context,
               MaterialPageRoute(
-                  builder: (context) => SongPlaying(song: widget.song)),
+                  builder: (context) => SongPlaying(songs: songs)),
             );
           } else if (widget.type == "edit") {
             Navigator.push(context,
@@ -40,11 +42,11 @@ class _SongComponentState extends State<SongComponent> {
                 GestureDetector(
                   onTap: () {
                     if (widget.type == "play") {
+                      songs.add(widget.song);
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) =>
-                                SongPlaying(song: widget.song)),
+                            builder: (context) => SongPlaying(songs: songs)),
                       );
                     } else if (widget.type == "edit") {
                       Navigator.push(
