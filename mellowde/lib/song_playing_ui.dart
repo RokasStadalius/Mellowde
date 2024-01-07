@@ -1,7 +1,9 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:audio_video_progress_bar/audio_video_progress_bar.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:mellowde/controls.dart';
+import 'package:mellowde/models/commentSong.dart';
 import 'package:mellowde/models/song.dart';
 import 'package:mellowde/models/user_info.dart';
 import 'package:mellowde/position_data.dart';
@@ -28,6 +30,8 @@ class _SongPlayingState extends State<SongPlaying> {
   late UserInfo user_info;
   double userRating = 0;
   double avgRating = 0;
+  final TextEditingController _commentController = TextEditingController();
+  List<CommentSong> comments = [];
 
   Future<void> _sendRating(double rating) async {
     // Replace with your actual server URL
@@ -99,6 +103,7 @@ class _SongPlayingState extends State<SongPlaying> {
 
     // Load average rating when the widget is initialized
     loadAverageRating();
+    loadComments();
   }
 
   void _playNext() {
@@ -117,7 +122,9 @@ class _SongPlayingState extends State<SongPlaying> {
     _audioPlayer.setUrl(widget.songs[_currentIndex].songPath);
     _audioPlayer.play();
 
-     _addToUserHistory(user_info.idUser, widget.songs[_currentIndex].idSong);
+    _addToUserHistory(user_info.idUser, widget.songs[_currentIndex].idSong);
+    loadAverageRating();
+    loadComments();
   }
 
   void _playPrevious() {
@@ -130,30 +137,33 @@ class _SongPlayingState extends State<SongPlaying> {
       _audioPlayer.play();
 
       _addToUserHistory(user_info.idUser, widget.songs[_currentIndex].idSong);
+      loadAverageRating();
+      loadComments();
     }
   }
 
   Future<void> _addToUserHistory(int userId, int songId) async {
-  // Replace with your actual server URL
-  const String serverUrl = "http://10.0.2.2/addToHistory.php";
-  try {
-    final response = await http.post(
-      Uri.parse(serverUrl),
-      body: {
-        'idUser': userId.toString(),
-        'idSong': songId.toString(),
-      },
-    );
+    // Replace with your actual server URL
+    const String serverUrl = "http://10.0.2.2/addToHistory.php";
+    try {
+      final response = await http.post(
+        Uri.parse(serverUrl),
+        body: {
+          'idUser': userId.toString(),
+          'idSong': songId.toString(),
+        },
+      );
 
-    if (response.statusCode == 200) {
-      print('Song added to history successfully');
-    } else {
-      print('Failed to add song to history. Status code: ${response.statusCode}');
+      if (response.statusCode == 200) {
+        print('Song added to history successfully');
+      } else {
+        print(
+            'Failed to add song to history. Status code: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error adding song to history: $e');
     }
-  } catch (e) {
-    print('Error adding song to history: $e');
   }
-}
 
   Future<void> loadAverageRating() async {
     // Fetch the average rating for the current song from the server
@@ -184,6 +194,168 @@ class _SongPlayingState extends State<SongPlaying> {
     }
   }
 
+  Future<void> loadComments() async {
+    // Replace with your actual server URL
+    const String serverUrl = "http://10.0.2.2/fetchComments.php";
+
+    try {
+      final int idSong = widget.songs[_currentIndex].idSong;
+
+      final response = await http.post(
+        Uri.parse(serverUrl),
+        body: {'idSong': idSong.toString()},
+      );
+
+      if (response.statusCode == 200) {
+        // Parse the comments from the response
+        final List<dynamic> jsonComments = json.decode(response.body);
+        setState(() {
+          comments = jsonComments
+              .map((jsonComment) => CommentSong.fromJson(jsonComment))
+              .toList();
+        });
+      } else {
+        print('Failed to load comments. Status code: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error loading comments: $e');
+    }
+  }
+
+  Future<void> _sendComment(String commentText) async {
+    // Replace with your actual server URL
+    const String serverUrl = "http://10.0.2.2/insertCommentSong.php";
+
+    int idUser = user_info.idUser;
+    int idSong = widget.songs[_currentIndex].idSong;
+    try {
+      final response = await http.post(
+        Uri.parse(serverUrl),
+        body: {
+          'comment_text': commentText,
+          'idSong': idSong.toString(),
+          'idUser': idUser.toString(),
+        },
+      );
+
+      if (response.statusCode == 200) {
+        // Show SnackBar upon successful comment addition
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Comment added successfully'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+
+        // Reload comments after adding a new comment
+        loadComments();
+      } else {
+        print('Failed to send comment. Status code: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error sending comment: $e');
+    }
+  }
+
+  Future<void> _showEditCommentPrompt(
+      BuildContext context, CommentSong comment) async {
+    final TextEditingController editCommentController =
+        TextEditingController(text: comment.commentSong);
+
+    return showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("Edit Comment"),
+          content: TextField(
+            controller: editCommentController,
+            decoration:
+                const InputDecoration(hintText: "Enter your edited comment..."),
+          ),
+          actions: [
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text("Cancel"),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                // Send the edited comment to the PHP script
+                await _sendEditComment(
+                    comment.idCommentSong, editCommentController.text);
+
+                // Reload comments after editing a comment
+                loadComments();
+
+                Navigator.of(context).pop();
+              },
+              child: const Text("Save"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _sendEditComment(int commentId, String editedComment) async {
+    // Replace with your actual server URL
+    const String serverUrl = "http://10.0.2.2/editCommentSong.php";
+
+    try {
+      final response = await http.post(
+        Uri.parse(serverUrl),
+        body: {
+          'comment_id': commentId.toString(),
+          'edited_comment': editedComment,
+        },
+      );
+
+      if (response.statusCode == 200) {
+        // Show SnackBar upon successful comment edit
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Comment edited successfully'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+      } else {
+        print('Failed to edit comment. Status code: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error editing comment: $e');
+    }
+  }
+
+  Future<void> _deleteComment(int commentId) async {
+    // Replace with your actual server URL
+    const String serverUrl = "http://10.0.2.2/deleteCommentSong.php";
+
+    try {
+      final response = await http.post(
+        Uri.parse(serverUrl),
+        body: {'comment_id': commentId.toString()},
+      );
+
+      if (response.statusCode == 200) {
+        // Show SnackBar upon successful comment deletion
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Comment deleted successfully'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+
+        // Reload comments after deleting a comment
+        loadComments();
+      } else {
+        print('Failed to delete comment. Status code: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error deleting comment: $e');
+    }
+  }
+
   @override
   void dispose() {
     _audioPlayer.dispose();
@@ -200,144 +372,214 @@ class _SongPlayingState extends State<SongPlaying> {
         backgroundColor: const Color(0x00000000),
         toolbarHeight: 130,
       ),
-      body: StreamBuilder<PositionData>(
-        stream: _positionDataStream,
-        builder: (context, snapshot) {
-          final positionData = snapshot.data;
-          return Container(
-            width: MediaQuery.of(context).size.width,
-            decoration: const BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage('assets/song_playing_bg.png'),
-                fit: BoxFit.cover,
+      body: SingleChildScrollView(
+        child: StreamBuilder<PositionData>(
+          stream: _positionDataStream,
+          builder: (context, snapshot) {
+            final positionData = snapshot.data;
+            return Container(
+              width: MediaQuery.of(context).size.width,
+              decoration: const BoxDecoration(
+                image: DecorationImage(
+                  image: AssetImage('assets/song_playing_bg.png'),
+                  fit: BoxFit.cover,
+                ),
               ),
-            ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                DecoratedBox(
-                  decoration: const BoxDecoration(
-                    shape: BoxShape.circle,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const SizedBox(
+                    height: 300,
                   ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: ClipOval(
-                      child: Image.network(
-                        widget.songs[_currentIndex].imagePath,
-                        height: 200,
-                        width: 200,
+                  DecoratedBox(
+                    decoration: const BoxDecoration(
+                      shape: BoxShape.circle,
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: ClipOval(
+                        child: Image.network(
+                          widget.songs[_currentIndex].imagePath,
+                          height: 200,
+                          width: 200,
+                        ),
                       ),
                     ),
                   ),
-                ),
-                const SizedBox(height: 20),
-                Text(
-                  widget.songs[_currentIndex].songName,
-                  style: const TextStyle(
-                    color: Colors.black,
-                    fontSize: 22,
-                    fontFamily: "Karla",
-                    fontWeight: FontWeight.bold,
+                  const SizedBox(height: 20),
+                  Text(
+                    widget.songs[_currentIndex].songName,
+                    style: const TextStyle(
+                      color: Colors.black,
+                      fontSize: 22,
+                      fontFamily: "Karla",
+                      fontWeight: FontWeight.bold,
+                    ),
+                    textAlign: TextAlign.center,
                   ),
-                  textAlign: TextAlign.center,
-                ),
-                Text(
-                  widget.songs[_currentIndex].artistName,
-                  style: const TextStyle(
-                    color: Colors.black54,
-                    fontFamily: "Karla",
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
+                  Text(
+                    widget.songs[_currentIndex].artistName,
+                    style: const TextStyle(
+                      color: Colors.black54,
+                      fontFamily: "Karla",
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    textAlign: TextAlign.center,
                   ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(
-                  height: 10,
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 50.0),
-                  child: ProgressBar(
-                    barHeight: 4,
-                    baseBarColor: Colors.black,
-                    thumbRadius: 5,
-                    thumbColor: Colors.purple,
-                    progress: positionData?.position ?? Duration.zero,
-                    buffered: positionData?.bufferedPosition ?? Duration.zero,
-                    total: positionData?.duration ?? Duration.zero,
-                    onSeek: _audioPlayer.seek,
-                    thumbGlowRadius: 10,
-                    progressBarColor: Colors.purple,
-                    bufferedBarColor: Colors.purple.withOpacity(0.24),
-                    barCapShape: BarCapShape.square,
+                  const SizedBox(
+                    height: 10,
                   ),
-                ),
-                const SizedBox(height: 20),
-                Controls(
-                  audioPlayer: _audioPlayer,
-                  currentIndex: _currentIndex,
-                  onNext: _playNext,
-                  onPrevious: _playPrevious,
-                ),
-                const SizedBox(
-                  height: 50,
-                ),
-                const Text(
-                  "Rate this song!",
-                  style: TextStyle(
-                    fontFamily: "Karla",
-                    fontSize: 20,
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 50.0),
+                    child: ProgressBar(
+                      barHeight: 4,
+                      thumbRadius: 5,
+                      thumbColor: Colors.purple,
+                      progress: positionData?.position ?? Duration.zero,
+                      buffered: positionData?.bufferedPosition ?? Duration.zero,
+                      total: positionData?.duration ?? Duration.zero,
+                      onSeek: _audioPlayer.seek,
+                      thumbGlowRadius: 10,
+                      progressBarColor: Colors.purple,
+                      bufferedBarColor: Colors.purple.withOpacity(0.24),
+                      barCapShape: BarCapShape.square,
+                    ),
                   ),
-                ),
-                // First Rating Bar for User Rating
-                RatingBar.builder(
-                  initialRating: userRating,
-                  minRating: 1,
-                  direction: Axis.horizontal,
-                  allowHalfRating: true,
-                  itemCount: 5,
-                  itemPadding: const EdgeInsets.symmetric(horizontal: 4.0),
-                  itemBuilder: (context, _) => const Icon(
-                    Icons.star,
-                    color: Colors.purple,
+                  const SizedBox(height: 20),
+                  Controls(
+                    audioPlayer: _audioPlayer,
+                    currentIndex: _currentIndex,
+                    onNext: _playNext,
+                    onPrevious: _playPrevious,
                   ),
-                  onRatingUpdate: (rating) {
-                    print(rating);
-                    _sendRating(rating);
-                    print(avgRating);
-                    loadAverageRating();
-                  },
-                ),
+                  const SizedBox(
+                    height: 50,
+                  ),
+                  const Text(
+                    "Rate this song!",
+                    style: TextStyle(
+                      fontFamily: "Karla",
+                      fontSize: 20,
+                    ),
+                  ),
+                  // First Rating Bar for User Rating
+                  RatingBar.builder(
+                    initialRating: userRating,
+                    minRating: 1,
+                    direction: Axis.horizontal,
+                    allowHalfRating: false,
+                    itemCount: 5,
+                    itemPadding: const EdgeInsets.symmetric(horizontal: 4.0),
+                    itemBuilder: (context, _) => const Icon(
+                      Icons.star,
+                      color: Colors.purple,
+                    ),
+                    onRatingUpdate: (rating) {
+                      print(rating);
+                      _sendRating(rating);
+                      print(avgRating);
+                      loadAverageRating();
+                    },
+                  ),
 
-                // Spacer for some space between the rating bars
-                const SizedBox(height: 20),
-                const Text(
-                  "Current Rating",
-                  style: TextStyle(
-                    fontFamily: "Karla",
-                    fontSize: 20,
+                  // Spacer for some space between the rating bars
+                  const SizedBox(height: 20),
+                  const Text(
+                    "Current Rating",
+                    style: TextStyle(
+                      fontFamily: "Karla",
+                      fontSize: 20,
+                    ),
                   ),
-                ),
-                // Second Rating Bar for Average Rating
-                RatingBar.builder(
-                  initialRating: avgRating,
-                  minRating: 1,
-                  direction: Axis.horizontal,
-                  allowHalfRating: true,
-                  itemCount: 5,
-                  itemPadding: const EdgeInsets.symmetric(horizontal: 4.0),
-                  itemBuilder: (context, _) => const Icon(
-                    Icons.star,
-                    color: Colors.purple,
+                  // Second Rating Bar for Average Rating
+                  RatingBar.builder(
+                    initialRating: avgRating,
+                    minRating: 1,
+                    direction: Axis.horizontal,
+                    allowHalfRating: true,
+                    itemCount: 5,
+                    itemPadding: const EdgeInsets.symmetric(horizontal: 4.0),
+                    itemBuilder: (context, _) => const Icon(
+                      Icons.star,
+                      color: Colors.purple,
+                    ),
+                    onRatingUpdate: (rating) {
+                      // This can be empty or you can handle the update if needed
+                    },
+                    ignoreGestures: true,
                   ),
-                  onRatingUpdate: (rating) {
-                    // This can be empty or you can handle the update if needed
-                  },
-                  ignoreGestures: true,
-                ),
-              ],
-            ),
-          );
-        },
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: TextField(
+                      controller: _commentController,
+                      decoration: const InputDecoration(
+                        hintText: 'Write your comment...',
+                        border: OutlineInputBorder(),
+                      ),
+                      // Add any additional configuration as needed
+                    ),
+                  ),
+
+                  // Add a button to post comments
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.purple),
+                    onPressed: () {
+                      setState(() {
+                        _sendComment(_commentController.text);
+                        _commentController.clear();
+                      });
+                    },
+                    child: const Text('Post Comment'),
+                  ),
+
+                  // Add a ListView for displaying comments
+                  SizedBox(
+                    height: 200,
+                    child: ListView.builder(
+                      itemCount: comments.length,
+                      itemBuilder: (context, index) {
+                        final CommentSong comment = comments[index];
+                        final bool isCurrentUserComment =
+                            comment.idUser == user_info.idUser;
+
+                        return ListTile(
+                          leading: const CircleAvatar(
+                            backgroundImage: AssetImage('assets/usericon.jpg'),
+                          ),
+                          title: Text(comment.commentSong),
+                          subtitle: Text(comment.username),
+                          trailing: isCurrentUserComment
+                              ? Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    IconButton(
+                                      icon: const Icon(Icons.edit),
+                                      onPressed: () {
+                                        _showEditCommentPrompt(
+                                            context, comment);
+                                      },
+                                    ),
+                                    IconButton(
+                                      icon: const Icon(Icons.delete),
+                                      onPressed: () {
+                                        _deleteComment(
+                                            comments[index].idCommentSong);
+                                      },
+                                    ),
+                                  ],
+                                )
+                              : null,
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
       ),
     );
   }

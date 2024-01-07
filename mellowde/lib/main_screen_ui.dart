@@ -52,7 +52,8 @@ class _MainScreenState extends State<MainScreen> {
   Future<bool> checkIfPlaylistsExist() async {
     // Užklausa į duomenų bazę, kuri tikrina, ar yra sukurtų playlistų
     // Galite pakeisti šią užklausą priklausomai nuo jūsų duomenų bazės struktūros
-    final response = await http.get(Uri.parse('http://10.0.2.2/check_playlists.php'));
+    final response =
+        await http.get(Uri.parse('http://10.0.2.2/check_playlists.php'));
 
     if (response.statusCode == 200) {
       // Čia gauname atsakymą iš serverio
@@ -81,21 +82,19 @@ class _MainScreenState extends State<MainScreen> {
     }
   }
 
-
   Future<void> displayUserHistory() async {
-  try {
-    List<dynamic> songs = await fetchUserHistory(user_info.idUser); // Assuming user_info has the userId
-    
-    setState(() {
-      userSongs = songs;
-    });
-  } catch (error) {
-    print('Error fetching user history: $error');
-    // Handle the error, perhaps by showing an error message to the user
+    try {
+      List<dynamic> songs = await fetchUserHistory(
+          user_info.idUser); // Assuming user_info has the userId
+
+      setState(() {
+        userSongs = songs;
+      });
+    } catch (error) {
+      print('Error fetching user history: $error');
+      // Handle the error, perhaps by showing an error message to the user
+    }
   }
-}
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -115,23 +114,23 @@ class _MainScreenState extends State<MainScreen> {
               );
             } else if (newIndex == 2) {
               bool playlistsExist = await checkIfPlaylistsExist();
-            if (playlistsExist) {
-              // Atidarome PlaylistSearchScreen, jei yra playlistų
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const PlaylistSearchScreen(),
-                ),
-              );
-            } else {
-              // Atidarome PlaylistCreateUI, jei nėra playlistų
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const PlaylistCreation(),
-                ),
-              );
-            }
+              if (playlistsExist) {
+                // Atidarome PlaylistSearchScreen, jei yra playlistų
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const PlaylistSearchScreen(),
+                  ),
+                );
+              } else {
+                // Atidarome PlaylistCreateUI, jei nėra playlistų
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const PlaylistCreation(),
+                  ),
+                );
+              }
             }
           },
           items: const [
@@ -226,10 +225,11 @@ class _MainScreenState extends State<MainScreen> {
               ),
               Expanded(
                 child: userSongs.isEmpty
-                    ? Center(
+                    ? const Center(
                         child: Text(
                           'No songs in history',
-                          style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
+                          style: TextStyle(
+                              fontSize: 18.0, fontWeight: FontWeight.bold),
                         ),
                       )
                     : ListView.builder(
@@ -239,18 +239,15 @@ class _MainScreenState extends State<MainScreen> {
                           return ListTile(
                             leading: Image.network(song['coverURL']),
                             title: Text(song['title']),
-                            subtitle: Text('Listened on: ${DateFormat('MMM d, HH:mm').format(DateTime.parse(song['play_date']))}'),
-
-                            onTap: () {
-                            },
+                            subtitle: Text(
+                                'Listened on: ${DateFormat('MMM d, HH:mm').format(DateTime.parse(song['play_date']))}'),
+                            onTap: () {},
                           );
                         },
                       ),
               )
             ],
           ),
-          
         ));
-        
   }
 }

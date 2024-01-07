@@ -1,1 +1,0 @@
-idUser and idSong parameters are requiredidUser and idSong parameters are required
