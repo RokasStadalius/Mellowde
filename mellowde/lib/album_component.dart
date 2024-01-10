@@ -72,16 +72,6 @@ class _AlbumComponentState extends State<AlbumComponent> {
                   ),
                 ),
                 // Add the delete IconButton
-                Expanded(
-                  child: Align(
-                    alignment: Alignment.centerRight,
-                    child: IconButton(
-                      icon: const Icon(
-                          Icons.delete), // Customize the icon as needed
-                      onPressed: () {},
-                    ),
-                  ),
-                ),
               ],
             )),
       ),

@@ -9,6 +9,7 @@ import 'package:mellowde/playlist_create_ui.dart';
 import 'package:mellowde/playlist_search_ui.dart';
 import 'package:mellowde/playlist_ui.dart';
 import 'package:mellowde/profile_details_ui.dart';
+import 'package:mellowde/recommended_song_screen.dart';
 import 'package:mellowde/song_component.dart';
 import 'package:mellowde/song_search_ui.dart';
 import 'package:provider/provider.dart';
@@ -138,7 +139,11 @@ class _MainScreenState extends State<MainScreen> {
                     builder: (context) => const AlbumSearchScreen()),
               );
             } else if (newIndex == 2) {
-                //Uga buga recomentations
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => const RecommendedSongScreen()),
+              );
             }
           },
           items: const [
@@ -147,7 +152,8 @@ class _MainScreenState extends State<MainScreen> {
               icon: Icon(Icons.music_note),
             ),
             BottomNavigationBarItem(icon: Icon(Icons.album), label: "Albums"),
-            // uga buga recomendations icon
+            BottomNavigationBarItem(
+                icon: Icon(Icons.recommend), label: "Recommended"),
           ],
         ),
         appBar: AppBar(
@@ -175,7 +181,6 @@ class _MainScreenState extends State<MainScreen> {
           elevation: 0,
           backgroundColor: const Color(0x00000000),
         ),
-        
         body: Container(
           padding: const EdgeInsets.only(left: 20),
           child: Column(
@@ -203,7 +208,8 @@ class _MainScreenState extends State<MainScreen> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => PlaylistUi(playlist: playlists[index]),
+                              builder: (context) =>
+                                  PlaylistUi(playlist: playlists[index]),
                             ),
                           );
                         },
@@ -229,10 +235,15 @@ class _MainScreenState extends State<MainScreen> {
                                   borderRadius: BorderRadius.circular(10),
                                   gradient: LinearGradient(
                                     colors: [
-                                      Colors.deepPurple.withOpacity(0.98), // Start with 0.9 opacity
-                                      Colors.deepPurple.withOpacity(0),   // End with 0 opacity
+                                      Colors.deepPurple.withOpacity(
+                                          0.98), // Start with 0.9 opacity
+                                      Colors.deepPurple
+                                          .withOpacity(0), // End with 0 opacity
                                     ],
-                                    stops: const [0.2, 1.5], // Adjust stops to control fading position
+                                    stops: const [
+                                      0.2,
+                                      1.5
+                                    ], // Adjust stops to control fading position
                                     begin: Alignment.bottomCenter,
                                     end: Alignment.topCenter,
                                   ),
@@ -274,7 +285,8 @@ class _MainScreenState extends State<MainScreen> {
                             Container(
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(10),
-                                color: Colors.deepPurple, // Adjust color as needed
+                                color:
+                                    Colors.deepPurple, // Adjust color as needed
                               ),
                             ),
                             // Playlist button overlay
@@ -284,7 +296,8 @@ class _MainScreenState extends State<MainScreen> {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) => const PlaylistCreation(),
+                                    builder: (context) =>
+                                        const PlaylistCreation(),
                                   ),
                                 );
                               },
