@@ -1,11 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:mellowde/main_screen_ui.dart';
+import 'package:mellowde/playlist_create_ui.dart';
 import 'package:mellowde/image_container.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'package:mellowde/models/playlist.dart';
+import 'package:mellowde/models/user_info.dart';
 import 'dart:io';
 
 import 'package:mellowde/playlist_search_ui.dart';
+import 'package:mellowde/user_info_provider.dart';
+import 'package:provider/provider.dart';
 
 class PlaylistCreation extends StatefulWidget {
   const PlaylistCreation({Key? key}) : super(key: key);
@@ -19,6 +24,16 @@ class _PlaylistCreationState extends State<PlaylistCreation> {
   TextEditingController descriptionController = TextEditingController();
   TextEditingController imageUrlController = TextEditingController();
   File? _selectedImage;
+  late UserInfo user_info;
+
+  @override
+  void initState() {
+    super.initState();
+
+    // Retrieve user information from the provider
+    user_info = Provider.of<UserInfoProvider>(context, listen: false).userInfo!;
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -42,7 +57,16 @@ class _PlaylistCreationState extends State<PlaylistCreation> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              const SizedBox(height: 100),
+              const SizedBox(height: 60), // Added space
+              const Text(
+                'Create a Playlist',
+                style: TextStyle(
+                  fontFamily: "Karla",
+                  fontSize: 24,
+                  color: Colors.white,
+                ),
+              ),
+              const SizedBox(height: 15),
               Container(
                 width: 300,
                 height: 65,
@@ -172,25 +196,38 @@ class _PlaylistCreationState extends State<PlaylistCreation> {
 
 
   void savePlaylist() async {
-    // Siunčiame POST užklausą į serverį su naujais duomenimis
     String url = 'http://10.0.2.2/playlist_create.php';
-    Map<String, String> headers = {'Content-Type': 'application/x-www-form-urlencoded'};
-    Map<String, String> body = {
-      'name': nameController.text,
-      'description': descriptionController.text,
-      'imageUrl': imageUrlController.text,
-    };
 
-    var response = await http.post(Uri.parse(url), headers: headers, body: body);
+    // Create a multipart request
+    var request = http.MultipartRequest('POST', Uri.parse(url));
 
-    if (response.statusCode == 200) {
-      print("Playlistas sukurtas ir išsaugotas sėkmingai.");
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => PlaylistSearchScreen()),
-      );
-    } else {
-      print("Klaida: ${response.body}");
+    // Add form fields
+    request.fields['name'] = nameController.text;
+    request.fields['description'] = descriptionController.text;
+    request.fields['userId'] = user_info.idUser.toString();
+
+    // Add the image file
+    if (_selectedImage != null) {
+      var file = await http.MultipartFile.fromPath('file', _selectedImage!.path);
+      request.files.add(file);
+    }
+
+    try {
+      // Send the request
+      var response = await request.send();
+
+      if (response.statusCode == 200) {
+        print("Playlistas sukurtas ir išsaugotas sėkmingai.");
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => MainScreen()),
+        );
+      } else {
+        print("Klaida: ${response.reasonPhrase}");
+      }
+    } catch (error) {
+      print("Error: $error");
     }
   }
+
 }

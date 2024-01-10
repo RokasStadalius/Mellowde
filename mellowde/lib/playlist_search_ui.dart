@@ -4,12 +4,15 @@ import 'package:flutter/material.dart';
 import 'package:mellowde/album_component.dart';
 import 'package:mellowde/main_screen_ui.dart';
 import 'package:mellowde/models/playlist.dart';
+import 'package:mellowde/models/user_info.dart';
 import 'package:mellowde/playlist_component.dart';
 import 'package:mellowde/playlist_ui.dart';
 import 'package:mellowde/profile_details_ui.dart';
+import 'package:mellowde/user_info_provider.dart';
+import 'package:provider/provider.dart';
 
 class PlaylistSearchScreen extends StatefulWidget {
-  const PlaylistSearchScreen({super.key});
+  const PlaylistSearchScreen({Key? key}) : super(key: key);
 
   @override
   State<PlaylistSearchScreen> createState() => _PlaylistSearchScreenState();
@@ -17,37 +20,49 @@ class PlaylistSearchScreen extends StatefulWidget {
 
 class _PlaylistSearchScreenState extends State<PlaylistSearchScreen> {
   List<Playlist> playlists = [];
+  late UserInfo user_info;
 
   @override
   void initState() {
     super.initState();
-    fetchPlaylists();
+
+    // Retrieve user information from the provider
+    user_info = Provider.of<UserInfoProvider>(context, listen: false).userInfo!;
+    fetchPlaylists(user_info.idUser);
   }
 
-  Future<void> fetchPlaylists() async {
+  void fetchPlaylists(int userId) async {
     try {
-      final response =
-          await http.get(Uri.parse('http://10.0.2.2/fetchplaylistsall.php'));
+      final response = await http.post(
+        Uri.parse('http://10.0.2.2/fetchplaylistbyuserid.php'),
+        body: {'userId': userId.toString()},
+      );
 
       if (response.statusCode == 200) {
-        final List<dynamic> data = json.decode(response.body);
-        setState(() {
-          playlists = data.map((playlistData) {
-            return Playlist(
-              int.parse(playlistData['playlistId']),
-              playlistData['name'],
-              playlistData['description'],
-              playlistData['imageUrl'],
-              int.parse(playlistData['userId']),
-              // Pridėkite kitus reikiamus laukus, jei jie yra
-            );
-          }).toList();
-        });
+        final List<dynamic> data = jsonDecode(response.body);
+
+        if (data.isNotEmpty) {
+          setState(() {
+            playlists.addAll(data.map((playlistData) {
+              return Playlist(
+                int.tryParse(playlistData['idPlaylist'].toString()) ?? 0,
+                playlistData['name'] ?? "",
+                playlistData['description'] ?? "",
+                playlistData['coverURL'] ?? "",
+                int.tryParse(playlistData['userId'].toString()) ?? 0,
+              );
+            }));
+          });
+
+          print("Playlists fetched: $playlists");
+        } else {
+          print("Gauti playlistai yra tušti.");
+        }
       } else {
-        throw Exception('Failed to load playlists');
+        throw Exception('Nepavyko gauti playlistų iš serverio.');
       }
     } catch (e) {
-      print('Error fetching playlists: $e');
+      print("Klaida gavus playlistus: $e");
     }
   }
 
@@ -63,7 +78,8 @@ class _PlaylistSearchScreenState extends State<PlaylistSearchScreen> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                    builder: (context) => const ProfileDetailsScreen()),
+                  builder: (context) => const ProfileDetailsScreen(),
+                ),
               );
             },
           ),
@@ -111,12 +127,6 @@ class _PlaylistSearchScreenState extends State<PlaylistSearchScreen> {
             itemBuilder: (BuildContext context, int index) {
               return GestureDetector(
                 onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => PlaylistUi(),
-                    ),
-                  );
                 },
                 child: PlaylistComponent(
                   playlist: playlists[index],
@@ -130,5 +140,7 @@ class _PlaylistSearchScreenState extends State<PlaylistSearchScreen> {
     );
   }
 
-  onSearch(String prompt) {}
+  void onSearch(String prompt) {
+    // Implement your search logic here
+  }
 }

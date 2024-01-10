@@ -1,21 +1,27 @@
 class Playlist {
-  int idPlaylist;
+  int? idPlaylist;
   String name;
   String description;
   String coverURL;
-  int userId;
+  int? userId;
 
-  Playlist(this.idPlaylist, this.name, this.description, this.coverURL, this.userId);
+  Playlist(
+    this.idPlaylist,
+    this.name,
+    this.description,
+    this.coverURL,
+    this.userId,
+  );
 
   factory Playlist.fromJson(Map<String, dynamic> json) {
     return Playlist(
-      json['idPlaylist'],
-      json['name'],
-      json['description'],
-      json['coverURL'],
-      json['userId'],
+      json['playlistId'] as int?,
+      json['name'] as String? ?? "",
+      json['description'] as String? ?? "",
+      json['imageUrl'] as String? ?? "",
+      json['userId'] as int?,
     );
   }
 
-  int get playlistId => idPlaylist; // Arba tiesiog pakeiskite get playlistId => idPlaylist;
+  int? get playlistId => idPlaylist;
 }

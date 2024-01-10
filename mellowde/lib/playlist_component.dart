@@ -20,15 +20,15 @@ class _PlaylistComponentState extends State<PlaylistComponent> {
       child: InkWell(
         onTap: () {
           if (widget.type == "edit") {
-            // Navigator.push(
-            //   context,
-            //   MaterialPageRoute(builder: (context) => const PlaylistEdit()),
-            // );
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => PlaylistEdit(idPlaylist: widget.playlist.idPlaylist)),
+            );
           } else if (widget.type == "play") {
             Navigator.push(
               context,
               MaterialPageRoute(
-                  builder: (context) => const PlaylistUi()),
+                  builder: (context) => PlaylistUi(playlist: widget.playlist)),
             );
           }
         },

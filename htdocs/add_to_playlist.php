@@ -6,32 +6,22 @@ $dbname = "mellowde";
 
 $conn = new mysqli($servername, $username, $password, $dbname);
 
-if ($conn->connect_error) {
-    die("Prisijungimo klaida: " . $conn->connect_error);
-}
+// Check if the required parameters are set
+if (isset($_POST['songId']) && isset($_POST['playlistId'])) {
+    $songId = $_POST['songId'];
+    $playlistId = $_POST['playlistId'];
+    $userId = $_POST['userId'];
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $songId = $_POST["songId"];
-    $playlistId = $_POST["playlistId"];
+    // Insert the record into the playlistsongs table
+    $query = "INSERT INTO playlistsongs (IdSong, IdPlaylist, IdUser) VALUES ('$songId', '$playlistId', '$userId')"; // Assuming IdUser is a foreign key
+    $result = mysqli_query($yourDbConnection, $query);
 
-    // Tikriname, ar daina jau yra pridėta į playlist'ą
-    $checkQuery = "SELECT * FROM queue WHERE songId = '$songId' AND playlistId = '$playlistId'";
-    $checkResult = $conn->query($checkQuery);
-
-    if ($checkResult->num_rows > 0) {
-        echo "Daina jau yra pridėta į playlist'ą.";
+    if ($result) {
+        echo "Song added to playlist successfully.";
     } else {
-        // Pridedame dainą į playlist'ą
-        $insertQuery = "INSERT INTO queue (songId, playlistId) VALUES ('$songId', '$playlistId')";
-        $insertResult = $conn->query($insertQuery);
-
-        if ($insertResult === TRUE) {
-            echo "Daina pridėta į playlist'ą sėkmingai.";
-        } else {
-            echo "Klaida pridedant dainą į playlist'ą: " . $conn->error;
-        }
+        echo "Error: " . mysqli_error($yourDbConnection);
     }
+} else {
+    echo "Error: Required parameters are missing.";
 }
-
-$conn->close();
 ?>

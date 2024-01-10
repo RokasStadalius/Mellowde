@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:mellowde/add_to_playlsit_ui.dart';
 import 'package:mellowde/album_search_ui.dart';
+import 'package:mellowde/models/playlist.dart';
 import 'package:mellowde/models/song.dart';
 import 'package:mellowde/playlist_create_ui.dart';
 import 'package:mellowde/playlist_search_ui.dart';
@@ -27,6 +28,7 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   late UserInfo user_info;
   List<dynamic> userSongs = [];
+  List<Playlist> playlists = [];
 
   @override
   void initState() {
@@ -34,36 +36,59 @@ class _MainScreenState extends State<MainScreen> {
     // Retrieve user information from the provider
     user_info = Provider.of<UserInfoProvider>(context, listen: false).userInfo!;
     displayUserHistory();
+    fetchPlaylists(user_info.idUser);
   }
 
-  List<String> myPlaylists = [
-    "Playlist 1",
-    "Playlist 2",
-    "Playlist 3",
-    "Playlist 4",
-    "Playlist 5",
-    "Playlist 6",
-    "Playlist 7",
-    "Playlist 8",
-    "Playlist 9",
-    "Playlist 10"
-  ];
+  void fetchPlaylists(int userId) async {
+    try {
+      final response = await http.post(
+        Uri.parse('http://10.0.2.2/fetchplaylistbyuserid.php'),
+        body: {'userId': userId.toString()},
+      );
 
-  Future<bool> checkIfPlaylistsExist() async {
-    // Užklausa į duomenų bazę, kuri tikrina, ar yra sukurtų playlistų
-    // Galite pakeisti šią užklausą priklausomai nuo jūsų duomenų bazės struktūros
-    final response =
-        await http.get(Uri.parse('http://10.0.2.2/check_playlists.php'));
+      if (response.statusCode == 200) {
+        final List<dynamic> data = jsonDecode(response.body);
 
-    if (response.statusCode == 200) {
-      // Čia gauname atsakymą iš serverio
-      return response.body.toLowerCase() == 'true';
-    } else {
-      // Įvyko klaida, apie tai pranešame ir grąžiname false
-      print('Klaida tikrinant playlistus: ${response.statusCode}');
-      return false;
+        if (data.isNotEmpty) {
+          setState(() {
+            playlists.addAll(data.map((playlistData) {
+              return Playlist(
+                int.tryParse(playlistData['idPlaylist'].toString()) ?? 0,
+                playlistData['name'] ?? "",
+                playlistData['description'] ?? "",
+                playlistData['coverURL'] ?? "",
+                int.tryParse(playlistData['userId'].toString()) ?? 0,
+              );
+            }));
+          });
+
+          //print("Playlists fetched: $playlists");
+        } else {
+          print("Gauti playlistai yra tušti.");
+        }
+      } else {
+        throw Exception('Nepavyko gauti playlistų iš serverio.');
+      }
+    } catch (e) {
+      print("Klaida gavus playlistus: $e");
     }
   }
+
+  // Future<bool> checkIfPlaylistsExist() async {
+  //   // Užklausa į duomenų bazę, kuri tikrina, ar yra sukurtų playlistų
+  //   // Galite pakeisti šią užklausą priklausomai nuo jūsų duomenų bazės struktūros
+  //   final response =
+  //       await http.get(Uri.parse('http://10.0.2.2/check_playlists.php'));
+
+  //   if (response.statusCode == 200) {
+  //     // Čia gauname atsakymą iš serverio
+  //     return response.body.toLowerCase() == 'true';
+  //   } else {
+  //     // Įvyko klaida, apie tai pranešame ir grąžiname false
+  //     print('Klaida tikrinant playlistus: ${response.statusCode}');
+  //     return false;
+  //   }
+  // }
 
   Future<List<dynamic>> fetchUserHistory(int userId) async {
     final response = await http.post(
@@ -113,24 +138,7 @@ class _MainScreenState extends State<MainScreen> {
                     builder: (context) => const AlbumSearchScreen()),
               );
             } else if (newIndex == 2) {
-              bool playlistsExist = await checkIfPlaylistsExist();
-              if (playlistsExist) {
-                // Atidarome PlaylistSearchScreen, jei yra playlistų
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const PlaylistSearchScreen(),
-                  ),
-                );
-              } else {
-                // Atidarome PlaylistCreateUI, jei nėra playlistų
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const PlaylistCreation(),
-                  ),
-                );
-              }
+                //Uga buga recomentations
             }
           },
           items: const [
@@ -139,8 +147,7 @@ class _MainScreenState extends State<MainScreen> {
               icon: Icon(Icons.music_note),
             ),
             BottomNavigationBarItem(icon: Icon(Icons.album), label: "Albums"),
-            BottomNavigationBarItem(
-                icon: Icon(Icons.playlist_play), label: "Playlists")
+            // uga buga recomendations icon
           ],
         ),
         appBar: AppBar(
@@ -168,46 +175,132 @@ class _MainScreenState extends State<MainScreen> {
           elevation: 0,
           backgroundColor: const Color(0x00000000),
         ),
+        
         body: Container(
           padding: const EdgeInsets.only(left: 20),
           child: Column(
             children: [
+              const SizedBox(
+                height: 10,
+              ),
+              Container(
+                  alignment: Alignment.centerLeft,
+                  child: const Text("Playlists",
+                      style: TextStyle(
+                        fontFamily: "Karla",
+                        fontSize: 25,
+                      ))),
               SizedBox(
                 height: 220,
                 child: ListView.builder(
-                  itemCount: myPlaylists.length,
+                  itemCount: playlists.length + 1, // Add 1 for the button
                   scrollDirection: Axis.horizontal,
-                  itemBuilder: (context, index) => GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const PlaylistUi()),
-                      );
-                    },
-                    child: Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10),
-                        color: Colors.deepPurple,
-                      ),
-                      height: 150,
-                      width: 130,
-                      margin: const EdgeInsets.all(10),
-                      child: Container(
-                        padding: const EdgeInsets.only(bottom: 10),
-                        alignment: Alignment.bottomCenter,
-                        child: Text(
-                          myPlaylists[index],
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontFamily: "Karla",
-                            fontSize: 18,
+                  itemBuilder: (context, index) {
+                    if (index < playlists.length) {
+                      // Display playlists
+                      return GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => PlaylistUi(playlist: playlists[index]),
+                            ),
+                          );
+                        },
+                        child: Container(
+                          height: 150,
+                          width: 130,
+                          margin: const EdgeInsets.all(10),
+                          child: Stack(
+                            children: [
+                              // Playlist cover image as background
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(10),
+                                child: Image.network(
+                                  playlists[index].coverURL,
+                                  fit: BoxFit.cover,
+                                  height: double.infinity,
+                                  width: double.infinity,
+                                ),
+                              ),
+                              // Gradient overlay to fade from deepPurple
+                              Container(
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(10),
+                                  gradient: LinearGradient(
+                                    colors: [
+                                      Colors.deepPurple.withOpacity(0.98), // Start with 0.9 opacity
+                                      Colors.deepPurple.withOpacity(0),   // End with 0 opacity
+                                    ],
+                                    stops: const [0.2, 1.5], // Adjust stops to control fading position
+                                    begin: Alignment.bottomCenter,
+                                    end: Alignment.topCenter,
+                                  ),
+                                ),
+                              ),
+                              // Playlist button overlay
+                              Container(
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(10),
+                                  //color: Colors.deepPurple.withOpacity(0.7),
+                                ),
+                                height: double.infinity,
+                                width: double.infinity,
+                                padding: const EdgeInsets.only(bottom: 10),
+                                alignment: Alignment.bottomCenter,
+                                child: Text(
+                                  playlists[index].name,
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontFamily: "Karla",
+                                    fontSize: 18,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                            ],
                           ),
-                          textAlign: TextAlign.center,
                         ),
-                      ),
-                    ),
-                  ),
+                      );
+                    } else {
+                      // Display button
+                      return Container(
+                        height: 150,
+                        width: 130,
+                        margin: const EdgeInsets.all(10),
+                        child: Stack(
+                          children: [
+                            // Placeholder image or background color
+                            Container(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(10),
+                                color: Colors.deepPurple, // Adjust color as needed
+                              ),
+                            ),
+                            // Playlist button overlay
+                            InkWell(
+                              onTap: () {
+                                // Navigate to PlaylistCreation screen
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => const PlaylistCreation(),
+                                  ),
+                                );
+                              },
+                              child: Container(
+                                alignment: Alignment.center,
+                                child: const Icon(
+                                  Icons.add_circle,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    }
+                  },
                 ),
               ),
               const SizedBox(
@@ -245,7 +338,7 @@ class _MainScreenState extends State<MainScreen> {
                           );
                         },
                       ),
-              )
+              ),
             ],
           ),
         ));

@@ -3,7 +3,12 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:mellowde/models/playlist.dart';
 import 'package:mellowde/models/song.dart';
+import 'package:mellowde/models/user_info.dart';
 import 'package:mellowde/playlist_create_ui.dart';
+import 'package:mellowde/playlist_search_ui.dart';
+import 'package:mellowde/song_search_ui.dart';
+import 'package:mellowde/user_info_provider.dart';
+import 'package:provider/provider.dart';
 
 class AddPlaylist extends StatefulWidget {
   final Song? song;
@@ -16,39 +21,56 @@ class AddPlaylist extends StatefulWidget {
 
 class _AddPlaylistState extends State<AddPlaylist> {
   List<Playlist> _playlists = [];
+  late UserInfo user_info;
 
   @override
   void initState() {
     super.initState();
-    fetchPlaylists();
+
+    user_info = Provider.of<UserInfoProvider>(context, listen: false).userInfo!;
+    fetchPlaylists(user_info.idUser);
   }
 
-  void fetchPlaylists() async {
-  try {
-    final response =
-        await http.get(Uri.parse('http://10.0.2.2/fetchplaylistsall.php'));
+  void fetchPlaylists(int userId) async {
+    try {
+      final response = await http.post(
+        Uri.parse('http://10.0.2.2/fetchplaylistbyuserid.php'),
+        body: {'userId': userId.toString()},
+      );
 
-    if (response.statusCode == 200) {
-      final List<dynamic> data = json.decode(response.body);
+      if (response.statusCode == 200) {
+        final List<dynamic> data = jsonDecode(response.body);
 
-      if (data.isNotEmpty) {
-        setState(() {
-          _playlists.addAll(data.map(
-              (playlistData) => Playlist.fromJson(playlistData)).toList());
-        });
+        if (data.isNotEmpty) {
+          setState(() {
+            _playlists.addAll(data.map((playlistData) {
+              return Playlist(
+                int.tryParse(playlistData['idPlaylist'].toString()) ?? 0,
+                playlistData['name'] ?? "",
+                playlistData['description'] ?? "",
+                playlistData['coverURL'] ?? "",
+                int.tryParse(playlistData['userId'].toString()) ?? 0,
+              );
+            }));
+          });
+
+          print("Playlists fetched: $_playlists");
+        } else {
+          print("Gauti playlistai yra tušti.");
+        }
       } else {
-        print("Gauti playlistai yra tušti.");
+        throw Exception('Nepavyko gauti playlistų iš serverio.');
       }
-    } else {
-      throw Exception('Nepavyko gauti playlistų iš serverio.');
+    } catch (e) {
+      print("Klaida gavus playlistus: $e");
     }
-  } catch (e) {
-    print("Klaida gavus playlistus: $e");
   }
-}
+
+
 
   @override
   Widget build(BuildContext context) {
+    print("Building UI with playlists: $_playlists");
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
@@ -109,50 +131,74 @@ class _AddPlaylistState extends State<AddPlaylist> {
               ),
             ),
           ),
+          // Dynamically create elevated buttons for each playlist
+          // Dynamically create elevated buttons for each playlist
           Positioned(
             top: 300,
             left: 60,
             child: Container(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(20),
               width: 280,
               height: 150,
-              child: ElevatedButton(
-                onPressed: () {
-                  // Pridėti dainą į pasirinktą playlist'ą
-                  addToPlaylist(_playlists[0].playlistId);
-                },
-                child: Text(
-                  _playlists.isNotEmpty ? _playlists[0].name : "Playlist 1",
-                  style: TextStyle(fontFamily: "Karla"),
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Color(0x7E5496).withOpacity(1),
-                ),
+              child: Column( // Change from ListView to Column
+                children: [
+                  // Create buttons for each playlist
+                  for (Playlist playlist in _playlists)
+                    ElevatedButton(
+                      onPressed: () {
+                        addToPlaylist(playlist.playlistId);
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Color(0x7E5496).withOpacity(1),
+                      ),
+                      child: Text(
+                        playlist.name,
+                        style: TextStyle(fontFamily: "Karla"),
+                      ),
+                    ),
+                ],
               ),
             ),
           ),
-          // Likusius playlistus pridėkite čia
         ],
       ),
     );
   }
 
-  void addToPlaylist(int playlistId) async {
-    // Siunčiame POST užklausą į serverį su dainos ir playlisto ID
+  void addToPlaylist(int? playlistId) async {
+  if (playlistId != null) {
+    print(widget.song?.songName);
+    print(_playlists[0].name); // Add this line
+    print(playlistId); // Add this line
+    print(user_info.idUser); // Add this line
+
+    // Send a POST request to the server with song and playlist ID
     String url = 'http://10.0.2.2/add_to_playlist.php';
     Map<String, String> headers = {'Content-Type': 'application/x-www-form-urlencoded'};
     Map<String, String> body = {
       'songId': widget.song?.idSong.toString() ?? "",
       'playlistId': playlistId.toString(),
+      'userId' : user_info.idUser.toString(),
     };
 
-    var response = await http.post(Uri.parse(url), headers: headers, body: body);
+    try {
+      var response = await http.post(Uri.parse(url), headers: headers, body: body);
 
-    if (response.statusCode == 200) {
-      print("Daina pridėta į playlist'ą sėkmingai.");
-      // Įdėkite navigacijos logiką, jei norite pereiti į kitą ekraną po pridėjimo
-    } else {
-      print("Klaida: ${response.body}");
+      if (response.statusCode == 200) {
+        print("Song added to playlist successfully.");
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const SongSearch()),
+        );
+
+      } else {
+        print("Error: ${response.body}");
+      }
+    } catch (e) {
+      print("Error: $e");
     }
+  } else {
+    print("Error: Playlist ID is null");
   }
+}
 }
