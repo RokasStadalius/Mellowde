@@ -1,5 +1,4 @@
 <?php
-// Prijungiame prie duomenų bazės
 $servername = "localhost";
 $username = "root";
 $password = "";
@@ -7,48 +6,39 @@ $dbname = "mellowde";
 
 $conn = new mysqli($servername, $username, $password, $dbname);
 
-// Tikriname prisijungimą
 if ($conn->connect_error) {
     die("Prisijungimo klaida: " . $conn->connect_error);
 }
 
-// Funkcija ištrinti playlist'ą
-function deletePlaylist($playlistId) {
-    global $conn;
+// Check if the required POST parameter is set
+if (isset($_POST['playlistId'])) {
+    $playlistId = $_POST['playlistId'];
 
-    // Ištriname iš playlist lenteles
-    $deletePlaylistQuery = "DELETE FROM playlist WHERE playlistId = '$playlistId'";
-    $result = $conn->query($deletePlaylistQuery);
+    // Delete the corresponding row from the playlistuser table
+    $deletePlaylistUserQuery = "DELETE FROM playlistuser WHERE playlistId = ?";
+    $stmt = $conn->prepare($deletePlaylistUserQuery);
+    $stmt->bind_param("i", $playlistId);
 
-    if ($result === TRUE) {
+    if ($stmt->execute()) {
+        $stmt->close();
 
-        http_response_code(200); // Sėkmingas atsakymas
-        echo "Playlist ištrintas sėkmingai.";
+        // Now, delete the playlist from the playlist table
+        $deletePlaylistQuery = "DELETE FROM playlist WHERE playlistId = ?";
+        $stmt = $conn->prepare($deletePlaylistQuery);
+        $stmt->bind_param("i", $playlistId);
+
+        if ($stmt->execute()) {
+            $stmt->close();
+            echo "Playlist and related user entry deleted successfully.";
+        } else {
+            echo "Error deleting playlist: " . $stmt->error;
+        }
     } else {
-        http_response_code(500); // Klaidos atveju
-        echo "Klaida ištrinant playlist'ą: " . $conn->error;
+        echo "Error deleting playlistuser entry: " . $stmt->error;
     }
+} else {
+    echo "Missing 'playlistId' parameter in the request.";
 }
-
-function deletePlaylistUser($playlistId) {
-    global $conn;
-
-    // Ištriname iš playlistuser lenteles
-    $deletePlaylistUserQuery = "DELETE FROM playlistuser WHERE playlistId = '$playlistId'";
-    $result = $conn->query($deletePlaylistUserQuery);
-
-    if ($result === TRUE) {
-        deletePlaylist($playlistId);
-
-        echo "Playlistuser įrašai ištrinti sėkmingai.";
-    } else {
-        echo "Klaida ištrinant playlistuser įrašus: " . $conn->error;
-    }
-}
-
-// Pavyzdinė užklausa ištrinti playlist'ą
-$playlistIdToDelete = $_POST['playlistId']; // Šią reikšmę siųsime iš Flutter aplikacijos
-deletePlaylistUser($playlistIdToDelete);
 
 $conn->close();
 ?>

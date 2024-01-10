@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mellowde/add_to_playlsit_ui.dart';
 import 'package:mellowde/models/song.dart';
 import 'package:mellowde/song_creation_namebio_ui.dart';
 import 'package:mellowde/song_playing_ui.dart';
@@ -6,7 +7,8 @@ import 'package:mellowde/song_playing_ui.dart';
 class SongComponent extends StatefulWidget {
   final Song song;
   final String type;
-  const SongComponent({Key? key, required this.song, required this.type})
+  final VoidCallback? onRemove;
+  const SongComponent({Key? key, required this.song, required this.type, this.onRemove})
       : super(key: key);
 
   @override
@@ -15,10 +17,23 @@ class SongComponent extends StatefulWidget {
 
 class _SongComponentState extends State<SongComponent> {
   List<Song> songs = [];
+
+  void onRemove() {
+    // Implement the logic to remove the song from the playlist here
+    // You can call the API or update the local state to remove the song
+  }
+  
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {},
+      onLongPress: () {
+        // Handle long press here, navigate to AddPlaylist()
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => AddPlaylist(song: widget.song)),
+        );
+      },
       child: InkWell(
         onTap: () {
           if (widget.type == "play") {
@@ -86,6 +101,11 @@ class _SongComponentState extends State<SongComponent> {
                     ],
                   ),
                 ),
+                // if (widget.type == 'remove' && widget.onRemove != null)
+                // IconButton(
+                //   icon: const Icon(Icons.remove),
+                //   onPressed: widget.onRemove,
+                // ),
               ],
             )),
       ),

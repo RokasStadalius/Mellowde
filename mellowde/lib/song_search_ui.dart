@@ -102,12 +102,6 @@ class _SongSearchState extends State<SongSearch> {
           itemBuilder: (context, index) {
             return GestureDetector(
               onLongPress: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const AddPlaylist(),
-                  ),
-                );
               },
               child: SongComponent(song: _songs[index], type: "play"),
             );

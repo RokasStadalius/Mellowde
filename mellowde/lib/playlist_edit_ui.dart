@@ -43,8 +43,17 @@ class _PlaylistEditState extends State<PlaylistEdit> {
           ),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              SizedBox(height: 100),
+            children: <Widget>[
+              const SizedBox(height: 60), // Added space
+              const Text(
+                'Edit a Playlist',
+                style: TextStyle(
+                  fontFamily: "Karla",
+                  fontSize: 24,
+                  color: Colors.white,
+                ),
+              ),
+              const SizedBox(height: 15),
               Container(
                 width: 300,
                 height: 65,
@@ -116,9 +125,9 @@ class _PlaylistEditState extends State<PlaylistEdit> {
               Container(
                 padding: const EdgeInsets.only(left: 0, top: 60, bottom: 20),
                 child: ImageContainer(
+                  imagePath: _selectedImage?.path ?? '',
                   height: 200,
                   width: 200,
-                  imagePath: _selectedImage?.path ?? '',
                 ),
               ),
               Container(
@@ -169,52 +178,93 @@ class _PlaylistEditState extends State<PlaylistEdit> {
     setState(() {
       if (pickedFile != null) {
         _selectedImage = File(pickedFile.path);
-        imageUrlController.text = pickedFile.path;
       }
     });
   }
 
- void deletePlaylist() async {
+  // void deletePlaylist() async {
+  //   String url = 'http://10.0.2.2/playlist_delete.php';
+  //   Map<String, String> headers = {'Content-Type': 'application/x-www-form-urlencoded'};
+  //   Map<String, String> body = {
+  //     'playlistId': widget.idPlaylist.toString(),
+  //   };
+
+  //   var response = await http.post(Uri.parse(url), headers: headers, body: body);
+
+  //   if (response.statusCode == 200) {
+  //     print("Playlist ištrintas sėkmingai.");
+  //     Navigator.push(
+  //       context,
+  //       MaterialPageRoute(builder: (context) => const MainScreen()),
+  //     );
+  //   } else {
+  //     print("Klaida: ${response.body}");
+  //   }
+  // }
+
+  void deletePlaylist() async {
     String url = 'http://10.0.2.2/playlist_delete.php';
-    Map<String, String> headers = {'Content-Type': 'application/x-www-form-urlencoded'};
-    Map<String, String> body = {
-      'playlistId': widget.idPlaylist.toString(),
-    };
 
-    var response = await http.post(Uri.parse(url), headers: headers, body: body);
+    // Create a multipart request
+    var request = http.MultipartRequest('POST', Uri.parse(url));
 
-    if (response.statusCode == 200) {
-      print("Playlist ištrintas sėkmingai.");
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => const MainScreen()),
-      );
-    } else {
-      print("Klaida: ${response.body}");
+    request.fields['playlistId'] = widget.idPlaylist.toString();
+
+    try {
+      // Send the request
+      var response = await request.send();
+
+      if (response.statusCode == 200) {
+        print("Playlist istrintas sėkmingai.");
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const MainScreen()),
+        );
+      } else {
+        print("Klaida: ${response.reasonPhrase}");
+      }
+    } catch (error) {
+      print("Error: $error");
     }
-}
+  }
 
   void savePlaylist() async {
-    // Siunčiame POST užklausą į serverį su naujais duomenimis
     String url = 'http://10.0.2.2/playlist_edit.php';
-    Map<String, String> headers = {'Content-Type': 'application/x-www-form-urlencoded'};
-    Map<String, String> body = {
-      'playlistId': widget.idPlaylist.toString(),  // Pakeiskite į jūsų playlisto ID
-      'name': nameController.text,
-      'description': descriptionController.text,
-      'imageUrl': imageUrlController.text,
-    };
 
-    var response = await http.post(Uri.parse(url), headers: headers, body: body);
+    // Create a multipart request
+    var request = http.MultipartRequest('POST', Uri.parse(url));
 
-    if (response.statusCode == 200) {
-      print("Playlist atnaujintas sėkmingai.");
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => const PlaylistSearchScreen()),
+    // Add form fields only if they are not empty
+    request.fields['playlistId'] = widget.idPlaylist.toString();
+    if (nameController.text.isNotEmpty) {
+      request.fields['name'] = nameController.text;
+    }
+    if (descriptionController.text.isNotEmpty) {
+      request.fields['description'] = descriptionController.text;
+    }
+
+    // Add the image file
+    if (_selectedImage != null) {
+      request.files.add(
+        await http.MultipartFile.fromPath('file', _selectedImage!.path),
       );
-    } else {
-      print("Klaida: ${response.body}");
+    }
+
+    try {
+      // Send the request
+      var response = await request.send();
+
+      if (response.statusCode == 200) {
+        print("Playlist atnaujintas sėkmingai.");
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const MainScreen()),
+        );
+      } else {
+        print("Klaida: ${response.reasonPhrase}");
+      }
+    } catch (error) {
+      print("Error: $error");
     }
   }
 }
