@@ -31,7 +31,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
 
         // Copy the file to the target directory
-        if (copy($_FILES["file"]["tmp_name"], $target_file)) {
+        if (move_uploaded_file($_FILES["file"]["tmp_name"], $target_file)) {
             $imageUrl = "http://10.0.2.2/" . $target_file;
 
             // Debugging statements
@@ -52,8 +52,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $stmt->close();
 
         // Use the existing values if the corresponding fields are not filled in the request
-        $name = $name ?: $existingName;
-        $description = $description ?: $existingDescription;
+        $name = (!empty($name)) ? $name : $existingName;
+        $description = (!empty($description)) ? $description : $existingDescription;
         $imageUrl = $existingImageUrl;
     }
 

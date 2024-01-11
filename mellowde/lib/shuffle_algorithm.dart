@@ -1,56 +1,70 @@
-// import 'dart:math';
 // import 'package:mellowde/models/song.dart';
 
-// class ShuffleAlgorithm {
-//   final int playcount = 1; // visur kur playcount tai tures but song.playcount
+// enum ShuffleCriteria { RATING, ARTIST, RANDOM }
 
-//   static List<Song> autoShuffle(List<Song> songs) {
-//     if (shouldShuffleByPlaycount(songs) && shouldShuffleWithoutRepeatingArtists(songs)) {
-//       return shuffleByPlaycountAndWithoutRepeatingArtists(songs);
-//     } else if (shouldShuffleByPlaycount(songs)) {
-//       return shuffleByPlaycount(songs);
-//     } else if (shouldShuffleWithoutRepeatingArtists(songs)) {
-//       return shuffleWithoutRepeatingArtists(songs);
-//     } else {
-//       return shuffleRandomly(songs);
+// class ShuffleAlgorithm {
+//   static List<Song> shuffleSongs(List<Song> songs, List<double> ratings, ShuffleCriteria criteria) {
+//     switch (criteria) {
+//       case ShuffleCriteria.RATING:
+//         return shuffleByRating(songs, ratings);
+//       case ShuffleCriteria.ARTIST:
+//         return shuffleByArtist(songs);
+//       case ShuffleCriteria.RANDOM:
+//         return shuffleRandomly(songs);
+//       default:
+//         return songs;
 //     }
 //   }
 
-//   static bool shouldShuffleByPlaycount(List<Song> songs) {
-//     return songs.every((song) => song.playcount != 0);
+//   static List<Song> shuffleByRating(List<Song> songs, List<double> ratings) {
+//     // Create a list of songs with corresponding ratings
+//     List<SongWithRating> songsWithRatings = [];
+//     for (int i = 0; i < songs.length; i++) {
+//       songsWithRatings.add(SongWithRating(song: songs[i], rating: ratings[i]));
+//     }
+
+//     // Sort songs by rating in descending order
+//     songsWithRatings.sort((a, b) => b.rating.compareTo(a.rating));
+
+//     // Extract the original songs from the sorted list
+//     List<Song> shuffledSongs = songsWithRatings.map((songWithRating) => songWithRating.song).toList();
+
+//     return shuffledSongs;
 //   }
 
-//   static bool shouldShuffleWithoutRepeatingArtists(List<Song> songs) {
-//     return songs.map((song) => song.artistName).toSet().length >= 2;
-//   }
+//   static List<Song> shuffleByArtist(List<Song> songs) {
+//     // Shuffle songs while making sure consecutive songs have different artists
+//     List<Song> shuffledList = [];
+//     List<String> shuffledArtists = [];
 
-//   static List<Song> shuffleByPlaycountAndWithoutRepeatingArtists(List<Song> songs) {
-//     songs.sort((a, b) {
-//       if (a.playcount != b.playcount) {
-//         return b.playcount.compareTo(a.playcount);
-//       } else {
-//         return a.artistName.compareTo(b.artistName);
+//     songs.shuffle();
+
+//     for (Song song in songs) {
+//       if (!shuffledArtists.contains(song.artistName)) {
+//         shuffledList.add(song);
+//         shuffledArtists.add(song.artistName);
 //       }
-//     });
-//     return songs;
-//   }
+//     }
 
-//   static List<Song> shuffleByPlaycount(List<Song> songs) {
-//     songs.sort((a, b) {
-//       return b.playcount.compareTo(a.playcount);
-//     });
-//     return songs;
-//   }
+//     // If not all songs are added (due to repetition of artists), add the remaining songs
+//     shuffledList.addAll(songs.where((song) => !shuffledArtists.contains(song.artistName)));
 
-//   static List<Song> shuffleWithoutRepeatingArtists(List<Song> songs) {
-//     songs.sort((a, b) {
-//       return a.artistName.compareTo(b.artistName);
-//     });
-//     return songs;
+//     return shuffledList;
 //   }
 
 //   static List<Song> shuffleRandomly(List<Song> songs) {
+//     // Shuffle songs randomly
 //     songs.shuffle();
 //     return songs;
 //   }
+// }
+
+// class SongWithRating {
+//   final Song song;
+//   final double rating;
+
+//   SongWithRating({
+//     required this.song,
+//     required this.rating,
+//   });
 // }

@@ -42,7 +42,6 @@ class _PlaylistState extends State<PlaylistUi> {
     fetchAverageRating();
     fetchComments();
   }
-
     // Function to fetch comments
   void fetchComments() async {
     try {
@@ -144,9 +143,6 @@ class _PlaylistState extends State<PlaylistUi> {
     );
   }
 
-
-
-// Function to update a comment
 // Function to update a comment
   Future<void> updateComment(int commentId, String newComment) async {
     try {
@@ -206,32 +202,57 @@ class _PlaylistState extends State<PlaylistUi> {
   }
 
   // Function to add a rating
-  void addRating(double rating) async {
-    // Add your implementation to send the rating to the server
-    // Example:
-    // final response = await http.post(
-    //   Uri.parse('your_rating_add_endpoint'),
-    //   body: {
-    //     'playlistId': widget.playlist?.idPlaylist.toString(),
-    //     'rating': rating.toString(),
-    //   },
-    // );
-    // Handle the response accordingly
+  void addRating(int rating) async {
+    try {
+      final response = await http.post(
+        Uri.parse('http://10.0.2.2/playlistRating.php'), // Replace with your API endpoint
+        body: {
+          'playlistId': widget.playlist?.idPlaylist.toString(),
+          'userId': user_info.idUser.toString(),
+          'rating': rating.toString(),
+        },
+      );
+
+      if (response.statusCode == 200) {
+        // Assuming your PHP script returns success if the rating is added
+        final Map<String, dynamic> data = json.decode(response.body);
+        if (data['success'] == true) {
+          // Rating successfully added, update your local state or perform any other action
+          print('Rating added successfully');
+        } else {
+          // Handle failure
+          print("Failed to add rating");
+        }
+      } else {
+        // Handle HTTP error
+        print("HTTP Error: ${response.statusCode}");
+      }
+    } catch (e) {
+      print("Error adding rating: $e");
+    }
   }
 
   // Function to fetch average rating
   void fetchAverageRating() async {
-    // Add your implementation to fetch the average rating from the server
-    // Example:
-    // final response = await http.get(
-    //   Uri.parse('your_average_rating_endpoint/${widget.playlist?.idPlaylist}'),
-    // );
-    // Handle the response accordingly
-    // For now, let's assume the average rating is 4.5 (you should replace this with your actual implementation)
-    setState(() {
-      averageRating = 4.5;
-    });
+  try {
+    final response = await http.post(
+      Uri.parse('http://10.0.2.2/fetchplaylistrating.php'),
+      body: {'playlistId': widget.playlist?.idPlaylist.toString()},
+    );
+
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> data = json.decode(response.body);
+      setState(() {
+        double rawRating = double.parse(data['averageRating'].toString());
+        averageRating = double.parse(rawRating.toStringAsFixed(2));
+      });
+    } else {
+      throw Exception('Failed to fetch average rating from the server. Status code: ${response.statusCode}');
+    }
+  } catch (e) {
+    print("Error fetching average rating: $e");
   }
+}
 
   void removeSongFromPlaylist(int songId) async {
     try {
@@ -433,7 +454,7 @@ class _PlaylistState extends State<PlaylistUi> {
                 initialRating: 0,
                 minRating: 1,
                 direction: Axis.horizontal,
-                allowHalfRating: true,
+                allowHalfRating: false,
                 itemCount: 5,
                 itemSize: 25,
                 itemBuilder: (context, _) => const Icon(
@@ -441,7 +462,8 @@ class _PlaylistState extends State<PlaylistUi> {
                   color: Colors.black,
                 ),
                 onRatingUpdate: (rating) {
-                  addRating(rating);
+                  int intRating = rating.toInt();
+                  addRating(intRating);
                 },
               ),
             ),
@@ -452,7 +474,7 @@ class _PlaylistState extends State<PlaylistUi> {
             child: Container(
               child: Text(
                 'Average Rating: $averageRating',
-                style: TextStyle(
+                style: const TextStyle(
                   fontFamily: "Karla",
                   fontSize: 12,
                   color: Colors.white,
